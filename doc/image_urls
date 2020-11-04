@@ -1,0 +1,55 @@
+Static Links to images for openQA testing
+
+
+Install ISO images x86
+=============================>
+https://download.opensuse.org/repositories/Virtualization:/Appliances:/Images:/Testing_x86:/suse/images/iso/kiwi-test-image-custom-partitions.x86_64.iso
+https://download.opensuse.org/repositories/Virtualization:/Appliances:/Images:/Testing_x86:/suse/images/iso/kiwi-test-image-disk-legacy.x86_64.iso
+https://download.opensuse.org/repositories/Virtualization:/Appliances:/Images:/Testing_x86:/suse/images/iso/kiwi-test-image-disk.x86_64.iso
+
+
+Live ISO images x86
+=============================>
+https://download.opensuse.org/repositories/Virtualization:/Appliances:/Images:/Testing_x86:/suse/images/iso/kiwi-test-image-live.x86_64.iso
+
+
+Disk images x86
+=============================>
+https://download.opensuse.org/repositories/Virtualization:/Appliances:/Images:/Testing_x86:/suse/images/kiwi-test-image-azure.x86_64.vhdfixed.xz
+https://download.opensuse.org/repositories/Virtualization:/Appliances:/Images:/Testing_x86:/suse/images/kiwi-test-image-custom-partitions.x86_64.raw.xz
+https://download.opensuse.org/repositories/Virtualization:/Appliances:/Images:/Testing_x86:/suse/images/kiwi-test-image-disk-legacy.x86_64.raw.xz
+https://download.opensuse.org/repositories/Virtualization:/Appliances:/Images:/Testing_x86:/suse/images/kiwi-test-image-disk-simple.x86_64.vmdk.xz
+https://download.opensuse.org/repositories/Virtualization:/Appliances:/Images:/Testing_x86:/suse/images/kiwi-test-image-disk.x86_64.raw.xz
+https://download.opensuse.org/repositories/Virtualization:/Appliances:/Images:/Testing_x86:/suse/images/kiwi-test-image-ec2.x86_64.raw.xz
+https://download.opensuse.org/repositories/Virtualization:/Appliances:/Images:/Testing_x86:/suse/images/kiwi-test-image-luks.x86_64.raw.xz
+https://download.opensuse.org/repositories/Virtualization:/Appliances:/Images:/Testing_x86:/suse/images/kiwi-test-image-lvm.x86_64.vmdk.xz
+https://download.opensuse.org/repositories/Virtualization:/Appliances:/Images:/Testing_x86:/suse/images/kiwi-test-image-MicroOS.x86_64.qcow2
+https://download.opensuse.org/repositories/Virtualization:/Appliances:/Images:/Testing_x86:/suse/images/kiwi-test-image-orthos.x86_64-1.13.1-Build4.9.raw.xz
+https://download.opensuse.org/repositories/Virtualization:/Appliances:/Images:/Testing_x86:/suse/images/kiwi-test-image-overlayroot.x86_64.vmdk.xz
+https://download.opensuse.org/repositories/Virtualization:/Appliances:/Images:/Testing_x86:/suse/images/kiwi-test-image-qcow-openstack.x86_64.qcow2
+https://download.opensuse.org/repositories/Virtualization:/Appliances:/Images:/Testing_x86:/suse/images/kiwi-test-image-suse-on-dnf.x86_64.vmdk.xz
+
+
+Special case disk images x86
+=============================>
+https://download.opensuse.org/repositories/Virtualization:/Appliances:/Images:/Testing_x86:/suse/images/kiwi-test-image-gce.x86_64-1.0.17-Build15.9.tar.gz
+https://download.opensuse.org/repositories/Virtualization:/Appliances:/Images:/Testing_x86:/suse/images/kiwi-test-image-vagrant.x86_64-libvirt.box
+https://download.opensuse.org/repositories/Virtualization:/Appliances:/Images:/Testing_x86:/suse/images/kiwi-test-image-vagrant.x86_64-virtualbox.box
+
+
+Container images x86
+=============================>
+Cannot be tested in openQA to my knowledge, container runtime ?
+we provide docker and WSL tests
+
+
+PXE images x86
+=============================>
+Cannot be tested in openQA to my knowledge, PXE infrastructure ?
+we provide netboot and kis tests
+
+
+Non x86 images of all types
+=============================>
+Cannot be tested in openQA to my knowledge, VM infrastructure for non x86 archs ?
+
