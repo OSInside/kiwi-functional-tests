@@ -1,4 +1,4 @@
-# Copyright (C) 2014 SUSE Linux GmbH
+# Copyright (C) 2020 SUSE LLC
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,17 +19,10 @@ use strict;
 use testapi;
 
 sub run {
-    wait_serial "localhost login:", 900;
-    sleep(2);
-    type_string "root";
-    send_key "ret";
-    sleep(1);
-    type_string "linux";
-    send_key "ret";
-    sleep(2);
-    assert_script_run(
-        "systemd-analyze blame | head -n 15 | tee -a /dev/$serialdev"
-    );
+    assert_screen('kiwi_bootloader');
+
+    my $timeout = defined(get_var("PUBLISH_HDD_1")) ? 300 : 30;
+    assert_screen("login_prompt", $timeout);
 }
 
 sub test_flags {

@@ -1,4 +1,4 @@
-# Copyright (C) 2020 SUSE LLC
+# Copyright (C) 2020-2021 SUSE LLC
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,13 +14,26 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+use base "basetest";
 use strict;
 use testapi;
-use autotest;
-use distribution;
 
-testapi::set_distribution(distribution->new);
-autotest::loadtest "tests/boot.pm";
-autotest::loadtest "tests/login.pm";
+sub run {
+    type_string('root');
+    send_key('ret');
+
+    assert_screen('password_prompt');
+    type_string('linux');
+    send_key('ret');
+    assert_screen('textmode_logged_in');
+
+    assert_script_run(
+        "systemd-analyze blame | head -n 15 | tee -a /dev/$serialdev"
+    );
+}
+
+sub test_flags {
+    return { fatal => 1 };
+}
 
 1;
