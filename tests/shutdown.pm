@@ -14,25 +14,17 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+use base 'basetest';
 use warnings;
 use strict;
 use testapi;
-use autotest;
-use distribution;
 
-testapi::set_distribution(distribution->new);
-set_var('REBOOT', 0);
-
-autotest::loadtest('tests/boot.pm');
-autotest::loadtest('tests/login.pm');
-
-if (defined(get_var('PUBLISH_HDD_1'))) {
-    autotest::loadtest('tests/shutdown.pm');
-} else {
-    autotest::loadtest('tests/reboot.pm');
-    autotest::loadtest('tests/boot.pm');
-    autotest::loadtest('tests/login.pm');
-    autotest::loadtest('tests/shutdown.pm');
+sub run {
+    assert_screen('textmode_logged_in');
+    # the SUT can shutdown faster than the reply reaching the worker via the
+    # serial line, which causes a failure, albeit the SUT has been turned off
+    enter_cmd('shutdown -hP now');
+    assert_shutdown();
 }
 
 1;

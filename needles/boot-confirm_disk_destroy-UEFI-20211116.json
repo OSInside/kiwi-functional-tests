@@ -1,0 +1,22 @@
+{
+  "area": [
+    {
+      "type": "match",
+      "height": 14,
+      "ypos": 241,
+      "width": 178,
+      "xpos": 87
+    },
+    {
+      "xpos": 278,
+      "width": 59,
+      "type": "match",
+      "height": 18,
+      "ypos": 303
+    }
+  ],
+  "properties": [],
+  "tags": [
+    "confirm_disk_destroy"
+  ]
+}

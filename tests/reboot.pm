@@ -14,25 +14,21 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+use base 'basetest';
 use warnings;
 use strict;
 use testapi;
-use autotest;
-use distribution;
 
-testapi::set_distribution(distribution->new);
-set_var('REBOOT', 0);
+sub run {
+    assert_screen('textmode_logged_in');
 
-autotest::loadtest('tests/boot.pm');
-autotest::loadtest('tests/login.pm');
+    # we don't want to check that reboot actually returns 0, as it is sometimes
+    # faster in restarting the SUT than the serial device reporting success (and
+    # then assert_script_run throws an error although it actually did the right
+    # thing)
+    enter_cmd('reboot');
 
-if (defined(get_var('PUBLISH_HDD_1'))) {
-    autotest::loadtest('tests/shutdown.pm');
-} else {
-    autotest::loadtest('tests/reboot.pm');
-    autotest::loadtest('tests/boot.pm');
-    autotest::loadtest('tests/login.pm');
-    autotest::loadtest('tests/shutdown.pm');
+    set_var('REBOOT', 1);
 }
 
 1;

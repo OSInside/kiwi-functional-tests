@@ -1,0 +1,23 @@
+{
+  "area": [
+    {
+      "xpos": 292,
+      "ypos": 81,
+      "width": 219,
+      "height": 21,
+      "type": "match"
+    },
+    {
+      "xpos": 386,
+      "ypos": 291,
+      "width": 38,
+      "height": 19,
+      "type": "match"
+    }
+  ],
+  "properties": [],
+  "tags": [
+    "trust_uefi_certificates",
+    "trust_uefi_certificates_yes"
+  ]
+}
