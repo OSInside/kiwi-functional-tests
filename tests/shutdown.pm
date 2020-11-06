@@ -1,4 +1,4 @@
-# Copyright (C) 2020 SUSE LLC
+# Copyright (C) 2020-2021 SUSE LLC
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,21 +14,14 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+use base "basetest";
 use strict;
 use testapi;
-use autotest;
-use distribution;
 
-testapi::set_distribution(distribution->new);
-autotest::loadtest('tests/boot.pm');
-autotest::loadtest('tests/login.pm');
-
-if (defined(get_var('PUBLISH_HDD_1'))) {
-    autotest::loadtest('tests/shutdown.pm');
-} else {
-    autotest::loadtest('tests/reboot.pm');
-    autotest::loadtest('tests/login.pm');
-    autotest::loadtest('tests/shutdown.pm');
+sub run {
+    assert_screen('textmode_logged_in');
+    assert_script_run('shutdown -hP now');
+    assert_shutdown();
 }
 
 1;
