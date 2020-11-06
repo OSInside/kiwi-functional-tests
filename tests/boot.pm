@@ -21,7 +21,7 @@ use testapi;
 sub run {
     assert_screen('kiwi_bootloader');
 
-    my $timeout = defined(get_var("PUBLISH_HDD_1")) ? 300 : 30;
+    my $timeout = defined(get_var("PUBLISH_HDD_1")) ? 300 : 60;
     assert_screen("login_prompt", $timeout);
 }
 
