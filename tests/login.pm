@@ -19,6 +19,7 @@ use strict;
 use testapi;
 
 sub run {
+    assert_screen('login_prompt');
     type_string('root');
     send_key('ret');
 
