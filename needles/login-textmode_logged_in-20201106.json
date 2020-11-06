@@ -1,0 +1,13 @@
+{
+  "area": [
+    {
+      "xpos": 73,
+      "ypos": 415,
+      "width": 181,
+      "height": 18,
+      "type": "match"
+    }
+  ],
+  "properties": [],
+  "tags": ["textmode_logged_in"]
+}
