@@ -19,10 +19,21 @@ use strict;
 use testapi;
 
 sub run {
-    assert_screen('kiwi_bootloader');
+    assert_screen([qw(kiwi_bootloader kiwi_bootloader_boot_from_hdd)]);
 
-    my $timeout = defined(get_var("PUBLISH_HDD_1")) ? 300 : 60;
-    assert_screen("login_prompt", $timeout);
+    # for some live images the default selected boot entry is the "Boot from
+    # Hard Disk" entry we don't want that, so we need to select the correct
+    # entry that says "Install $NAME" to achieve that, we just hit HOME first
+    # which gets us to the first entry and then spam down until we get a needle
+    # match
+    if (match_has_tag('kiwi_bootloader_boot_from_hdd') && defined(get_var('PUBLISH_HDD_1'))) {
+        send_key('home');
+        send_key_until_needlematch('kiwi_bootloader_install_selected', 'down', 10);
+        send_key('ret');
+    }
+
+    my $timeout = defined(get_var('PUBLISH_HDD_1')) ? 300 : 60;
+    assert_screen('login_prompt', $timeout);
 }
 
 sub test_flags {
