@@ -19,7 +19,20 @@ use strict;
 use testapi;
 
 sub run {
-    assert_screen([qw(kiwi_bootloader kiwi_bootloader_boot_from_hdd)]);
+    my $match = assert_screen([qw(kiwi_bootloader kiwi_bootloader_boot_from_hdd trust_uefi_certificates)]);
+    print "$match\n";
+    print get_var('PUBLISH_HDD_1');
+
+    if (match_has_tag('trust_uefi_certificates')) {
+        die 'trust UEFI certificates screen present, but UEFI is not used' unless defined(get_var('UEFI'));
+
+        send_key('down') if match_has_tag('trust_uefi_certificates_no');
+
+        assert_screen('trust_uefi_certificates_yes');
+        send_key('ret');
+
+        assert_screen([qw(kiwi_bootloader kiwi_bootloader_boot_from_hdd)]);
+    }
 
     # for some live images the default selected boot entry is the "Boot from
     # Hard Disk" entry we don't want that, so we need to select the correct

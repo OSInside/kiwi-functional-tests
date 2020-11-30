@@ -123,3 +123,5 @@ if __name__ == "__main__":
         if api_post:
             cmd = f"openqa-cli api{' --host ' + args.host[0] if args.host[0] is not None else ''} -X POST isos {api_post} BUILD={build} CASEDIR={args.git_remote[0]}"
             print(cmd)
+            uefi_cmd = f"{cmd} UEFI=1 UEFI_PFLASH_CODE=/usr/share/qemu/ovmf-x86_64-ms-code.bin UEFI_PFLASH_VARS=/usr/share/qemu/ovmf-x86_64-ms-vars.bin"
+            print(uefi_cmd)
