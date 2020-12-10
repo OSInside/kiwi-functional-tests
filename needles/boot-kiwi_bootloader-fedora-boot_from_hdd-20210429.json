@@ -1,0 +1,16 @@
+{
+  "area": [
+    {
+      "width": 172,
+      "ypos": 120,
+      "type": "match",
+      "height": 18,
+      "xpos": 123
+    }
+  ],
+  "properties": [],
+  "tags": [
+    "kiwi_bootloader",
+    "kiwi_bootloader_boot_from_hdd"
+  ]
+}

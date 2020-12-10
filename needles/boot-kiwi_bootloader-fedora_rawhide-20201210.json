@@ -1,0 +1,22 @@
+{
+  "area": [
+    {
+      "xpos": 436,
+      "ypos": 46,
+      "width": 185,
+      "height": 20,
+      "type": "match"
+    },
+    {
+      "xpos": 52,
+      "ypos": 300,
+      "width": 185,
+      "height": 19,
+      "type": "match"
+    }
+  ],
+  "properties": [],
+  "tags": [
+    "kiwi_bootloader"
+  ]
+}
