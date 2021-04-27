@@ -5,6 +5,14 @@ KIWI openQA functional tests using the images from the staging project on OBS.
 
 ## setup on openQA
 
+You can apply the necessary settings automatically using the `settings.py`
+script as follows:
+```ShellSession
+poetry run ./settings.py --server $URL_TO_MY_INSTANCE
+```
+
+Or you can apply the following settings manually:
+
 ### Medium types
 
 The following 3 medium types have to be setup:
