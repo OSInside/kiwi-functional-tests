@@ -19,9 +19,13 @@ use strict;
 use testapi;
 
 sub run {
-    my $match = assert_screen([qw(kiwi_bootloader kiwi_bootloader_boot_from_hdd trust_uefi_certificates)]);
-    print "$match\n";
-    print get_var('PUBLISH_HDD_1');
+    my $match = check_screen([qw(kiwi_bootloader kiwi_bootloader_boot_from_hdd trust_uefi_certificates)], timeout => 10);
+
+    if ((get_var('DISTRI') eq 'fedora') && (defined(get_var('HDD_1'))) && (!defined($match))) {
+        record_soft_failure('No visible bootloader in the Fedora disk images');
+    } elsif (!defined($match)) {
+        die "Did not see the bootloader";
+    }
 
     if (match_has_tag('trust_uefi_certificates')) {
         die 'trust UEFI certificates screen present, but UEFI is not used' unless defined(get_var('UEFI'));
