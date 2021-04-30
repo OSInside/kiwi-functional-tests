@@ -49,7 +49,10 @@ sub run {
         send_key('ret');
     }
 
-    my $timeout = defined(get_var('PUBLISH_HDD_1')) ? 300 : 60;
+    # wait 10 minutes for the unattended installation and 2 for a regular boot
+    # (booting can take a while for appliances based on MicroOS as ignition
+    # takes its time)
+    my $timeout = defined(get_var('PUBLISH_HDD_1')) ? 600 : 120;
     assert_screen('login_prompt', $timeout);
 }
 
