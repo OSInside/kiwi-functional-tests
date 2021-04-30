@@ -1,102 +1,13 @@
 #!/usr/bin/env python3
-from typing import Dict, List, TypedDict
-
-
 from openqa_client.client import OpenQA_Client
 
-
-class TestSuite(TypedDict):
-    description: str
-    settings: List[Dict[str, str]]
-
-
-class Product(TypedDict):
-    arch: str
-    distri: str
-    version: str
-    settings: List[Dict[str, str]]
-
-
-class Client(OpenQA_Client):
-    def openqa_request(self, method, path, params=None, data=None):
-        return super().openqa_request(
-            method, path, params=params, retries=0, wait=0, data=data
-        )
-
-
-DEFAULT_PRODUCT = Product(
-    arch="x86_64", version="Tumbleweed", distri="opensuse", settings=[]
+from launcher.constants import (
+    KIWI_TEST_SUITES,
+    KIWI_PRODUCTS,
+    KIWI_JOB_GROUP_NAME,
+    KIWI_JOB_TEMPLATE,
+    SIXTY_FOUR_BIT_MACHINE_SETTINGS,
 )
-
-
-KIWI_TEST_SUITES: Dict[str, TestSuite] = {
-    "kiwi_disk_image_test": {
-        "description": "Test a disk image produced by kiwi",
-        "settings": [],
-    },
-    "kiwi_install_test": {
-        "description": "Runs the installation from a kiwi disk image",
-        "settings": [
-            {
-                "key": "PUBLISH_HDD_1",
-                "value": "%DISTRI%-%VERSION%-%ARCH%-%BUILD%.qcow2",
-            }
-        ],
-    },
-    "kiwi_live_image_test": {
-        "description": "Tests of the kiwi live images",
-        "settings": [],
-    },
-}
-
-
-KIWI_PRODUCTS: Dict[str, Product] = {
-    "kiwi-test-iso": DEFAULT_PRODUCT,
-    "kiwi-test-disk": DEFAULT_PRODUCT,
-    "kiwi-install-iso": DEFAULT_PRODUCT,
-}
-
-
-KIWI_JOB_TEMPLATE = """defaults:
-  x86_64:
-    machine: 64bit
-    priority: 50
-
-products:
-  kiwi-live-iso-x86_64:
-    distri: opensuse
-    version: Tumbleweed
-    flavor: kiwi-test-iso
-  kiwi-test-install-iso-x86_64:
-    distri: opensuse
-    version: Tumbleweed
-    flavor: kiwi-install-iso
-  kiwi-test-disk-x86_64:
-    distri: opensuse
-    version: Tumbleweed
-    flavor: kiwi-test-disk
-
-scenarios:
-  x86_64:
-    kiwi-live-iso-x86_64:
-      - kiwi_live_image_test
-
-    kiwi-test-install-iso-x86_64:
-      - kiwi_live_image_test:
-          settings:
-            PUBLISH_HDD_1: "%DISTRI%-%VERSION%-%ARCH%-%BUILD%.qcow2"
-      - kiwi_disk_image_test:
-          settings:
-            HDD_1: "%DISTRI%-%VERSION%-%ARCH%-%BUILD%.qcow2"
-            START_AFTER_TEST: kiwi_live_image_test
-            +ISO_1: ""
-            +ISO_1_URL: ""
-
-    kiwi-test-disk-x86_64:
-      - kiwi_disk_image_test
-"""
-
-KIWI_JOB_GROUP_NAME = "kiwi images"
 
 
 def ensure_kiwi_settings(client: OpenQA_Client) -> None:
@@ -122,24 +33,38 @@ def ensure_kiwi_settings(client: OpenQA_Client) -> None:
             client.openqa_request("POST", "test_suites", params=params)
 
     products = client.openqa_request("GET", "products")["Products"]
-    for product_flavor in KIWI_PRODUCTS:
+    for kiwi_product in KIWI_PRODUCTS:
         matching_products = list(
-            filter(lambda p: p["flavor"] == product_flavor, products)
+            filter(lambda p: kiwi_product.equal_in_db(p), products)
         )
-        params = {**KIWI_PRODUCTS[product_flavor], "flavor": product_flavor}
         if len(matching_products) > 1:
             raise ValueError(
-                f"Got {len(matching_products)} products with the flavor "
-                f"{product_flavor}"
+                f"Got {len(matching_products)} products matching"
+                f" {kiwi_product=}"
             )
         elif len(matching_products) == 1:
             client.openqa_request(
-                "POST",
+                "PUT",
                 f"products/{matching_products[0]['id']}",
-                params=params,
+                params=kiwi_product.__dict__,
             )
         else:
-            client.openqa_request("POST", "products", params=params)
+            client.openqa_request(
+                "POST", "products", params=kiwi_product.__dict__
+            )
+
+    machines = client.openqa_request("GET", "machines")["Machines"]
+    sixty_four_bit_machine = [
+        machine for machine in machines if machine["name"] == "64bit"
+    ]
+    if len(sixty_four_bit_machine) > 1:
+        raise ValueError(
+            f"Got {len(sixty_four_bit_machine)} machines with the name '64bit'"
+        )
+    elif len(sixty_four_bit_machine) == 0:
+        client.openqa_request(
+            "POST", "machines", params=SIXTY_FOUR_BIT_MACHINE_SETTINGS
+        )
 
     job_groups = client.openqa_request("GET", "job_groups")
     matching_job_groups = list(
@@ -183,23 +108,17 @@ def ensure_kiwi_settings(client: OpenQA_Client) -> None:
 if __name__ == "__main__":
     from argparse import ArgumentParser
 
+    from launcher.argparser import SERVER_PARSER
+    from launcher.client import NoWaitClient
+
     parser = ArgumentParser(
         "kiwi-openqa-settings",
-        description="Apply the necessary settings on a openQA instance for "
-        "the kiwi tests",
-    )
-    parser.add_argument(
-        "--server", nargs=1, default=["openqa.opensuse.org"], type=str
-    )
-    parser.add_argument(
-        "--server-scheme",
-        nargs=1,
-        choices=["http", "https"],
-        type=str,
-        default=["https"],
+        description="""Apply the necessary settings on a openQA instance for
+the kiwi tests""",
+        parents=[SERVER_PARSER],
     )
 
     args = parser.parse_args()
-    client = Client(server=args.server[0], scheme=args.server_scheme[0])
+    client = NoWaitClient(server=args.server[0], scheme=args.server_scheme[0])
 
     ensure_kiwi_settings(client)
