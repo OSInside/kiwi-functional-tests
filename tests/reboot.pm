@@ -21,16 +21,6 @@ use testapi;
 sub run {
     assert_screen('textmode_logged_in');
     assert_script_run('reboot');
-
-    my $match = check_screen('kiwi_bootloader', timeout => 30);
-
-    if ((get_var('DISTRI') eq 'fedora') && (defined(get_var('HDD_1'))) && (!defined($match))) {
-        record_soft_failure('No visible bootloader in the Fedora disk images');
-    } elsif (!defined($match)) {
-        die "Did not see the bootloader";
-    }
-
-    assert_screen('login_prompt');
 }
 
 1;

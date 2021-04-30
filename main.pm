@@ -1,4 +1,4 @@
-# Copyright (C) 2020 SUSE LLC
+# Copyright (C) 2020-2021 SUSE LLC
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@ if (defined(get_var('PUBLISH_HDD_1'))) {
     autotest::loadtest('tests/shutdown.pm');
 } else {
     autotest::loadtest('tests/reboot.pm');
+    autotest::loadtest('tests/boot.pm');
     autotest::loadtest('tests/login.pm');
     autotest::loadtest('tests/shutdown.pm');
 }
