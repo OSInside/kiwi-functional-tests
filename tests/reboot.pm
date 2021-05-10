@@ -20,7 +20,12 @@ use testapi;
 
 sub run {
     assert_screen('textmode_logged_in');
-    assert_script_run('reboot');
+
+    # we don't want to check that reboot actually returns 0, as it is sometimes
+    # faster in restarting the SUT than the serial device reporting success (and
+    # then assert_script_run throws an error although it actually did the right
+    # thing)
+    enter_cmd('reboot');
 }
 
 1;

@@ -20,7 +20,9 @@ use testapi;
 
 sub run {
     assert_screen('textmode_logged_in');
-    assert_script_run('shutdown -hP now');
+    # the SUT can shutdown faster than the reply reaching the worker via the
+    # serial line, which causes a failure, albeit the SUT has been turned off
+    enter_cmd('shutdown -hP now');
     assert_shutdown();
 }
 
