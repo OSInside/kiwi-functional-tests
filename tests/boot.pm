@@ -1,4 +1,4 @@
-# Copyright (C) 2020 SUSE LLC
+# Copyright (C) 2020-2021 SUSE LLC
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,6 +24,10 @@ sub run {
     my $match = check_screen('kiwi_bootloader', timeout => 10);
     if ((get_var('DISTRI') eq 'fedora') && (defined(get_var('HDD_1'))) && (!defined($match))) {
         record_soft_failure('No visible bootloader in the Fedora disk images');
+    } elsif (get_var('UEFI') && !defined($match)) {
+        my $distri = get_var('DISTRI');
+        my $version = get_var('VERSION');
+        record_soft_failure("bootloader is not visible for $distri $version in UEFI mode");
     } elsif (!defined($match)) {
         die "Did not see the bootloader";
     }
