@@ -33,10 +33,16 @@ sub run {
     }
 
     # Check now whether we have to handle UEFI certificates or whether the
-    # bootloader is at the wrong entry.
+    # bootloader is at the wrong entry or whether we have to enter the LUKS
+    # passphrase
     # We do this in a second check_screen, to ensure that the matched needle
     # will not be "just" 'kiwi_bootloader'.
-    check_screen([qw(kiwi_bootloader_boot_from_hdd trust_uefi_certificates)]);
+    check_screen([qw(kiwi_bootloader_boot_from_hdd trust_uefi_certificates enter_luks_passphrase)]);
+
+    if (match_has_tag('enter_luks_passphrase')) {
+        type_string('linux');
+        send_key('ret');
+    }
 
     if (match_has_tag('trust_uefi_certificates')) {
         die 'trust UEFI certificates screen present, but UEFI is not used' unless defined(get_var('UEFI'));
