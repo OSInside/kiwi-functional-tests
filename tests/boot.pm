@@ -64,7 +64,16 @@ sub run {
     # (booting can take a while for appliances based on MicroOS as ignition
     # takes its time)
     my $timeout = defined(get_var('PUBLISH_HDD_1')) ? 600 : 120;
-    assert_screen('login_prompt', $timeout);
+
+    # appliances based on MicroOS will spend a loooong time installing &
+    # verifying the disk image
+    assert_screen([qw(login_prompt installation_screen)], $timeout);
+
+    # => if we see the installation screen, then wait again for up to ten
+    # minutes for it to finally finish installation & disk verify
+    if (match_has_tag('installation_screen')) {
+        assert_screen('login_prompt', 600);
+    }
 }
 
 sub test_flags {
