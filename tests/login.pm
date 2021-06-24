@@ -28,9 +28,10 @@ sub run {
     send_key('ret');
     assert_screen('textmode_logged_in');
 
-    assert_script_run(
-        "systemd-analyze blame | head -n 15 | tee -a /dev/$serialdev"
-    );
+    # if systemd-analyze blame fails, then the pipe swallows the error
+    # setting pipefail remedies that
+    assert_script_run('set -o pipefail');
+    assert_script_run('systemd-analyze blame | head -n 15');
 }
 
 sub test_flags {
