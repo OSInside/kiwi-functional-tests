@@ -19,9 +19,13 @@ use strict;
 use testapi;
 
 sub run {
+    # if we are rebooting, then we have to wait longer as the system is shutting
+    # down (which also takes a bit)
+    my $bootloader_timeout = get_var('REBOOT', 0) ? 30 : 10;
+
     # we first check whether the bootloader is visible (fails on Fedora for
     # $reasons...)
-    my $match = check_screen('kiwi_bootloader', timeout => 10);
+    my $match = check_screen('kiwi_bootloader', timeout => $bootloader_timeout);
     if ((get_var('DISTRI') eq 'fedora') && (defined(get_var('HDD_1'))) && (!defined($match))) {
         record_soft_failure('No visible bootloader in the Fedora disk images');
     } elsif (get_var('UEFI') && !defined($match)) {

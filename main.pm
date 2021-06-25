@@ -20,6 +20,8 @@ use autotest;
 use distribution;
 
 testapi::set_distribution(distribution->new);
+set_var('REBOOT', 0);
+
 autotest::loadtest('tests/boot.pm');
 autotest::loadtest('tests/login.pm');
 

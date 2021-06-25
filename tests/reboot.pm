@@ -26,6 +26,8 @@ sub run {
     # then assert_script_run throws an error although it actually did the right
     # thing)
     enter_cmd('reboot');
+
+    set_var('REBOOT', 1);
 }
 
 1;
