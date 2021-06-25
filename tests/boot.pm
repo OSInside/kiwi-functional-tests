@@ -82,6 +82,7 @@ sub run {
     # => if we see the installation screen, then wait again for up to ten
     # minutes for it to finally finish installation & disk verify
     if (match_has_tag('installation_screen')) {
+        die "Saw the installation screen on the second boot" if get_var('REBOOT', 0) == 1;
         assert_screen('login_prompt', 600);
     }
 }
