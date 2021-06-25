@@ -26,6 +26,9 @@ sub run {
     assert_screen('password_prompt');
     type_string('linux');
     send_key('ret');
+
+    # clear the screen so that the textmode_logged_in needle matches
+    send_key('ctrl-l');
     assert_screen('textmode_logged_in');
 
     # if systemd-analyze blame fails, then the pipe swallows the error
