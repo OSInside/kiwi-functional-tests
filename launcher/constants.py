@@ -122,7 +122,7 @@ KIWI_JOB_TEMPLATE = (
     """defaults:
   x86_64:
     machine: 64bit
-    priority: 50
+    priority: 60
 
 products:"""
     + "\n".join(
