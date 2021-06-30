@@ -149,19 +149,25 @@ scenarios:
     + "\n".join(
         f"""
     kiwi-{distri}-{version}-live-iso-x86_64:
-      - kiwi_live_image_test
+      - kiwi_live_image_test:
+          description: {KIWI_TEST_SUITES['kiwi_live_image_test']['description']} for {distri} {version}
 
     kiwi-{distri}-{version}-install-iso-x86_64:
       - kiwi_live_image_test:
+          description: {KIWI_TEST_SUITES['kiwi_live_image_test']['description']} for {distri} {version}
           settings:
             PUBLISH_HDD_1: "%DISTRI%-%VERSION%-%ARCH%-%BUILD%.qcow2"
+
       - kiwi_disk_image_test:
+          description: {KIWI_TEST_SUITES['kiwi_disk_image_test']['description']} for {distri} {version}
           settings:
             HDD_1: "%DISTRI%-%VERSION%-%ARCH%-%BUILD%.qcow2"
             START_AFTER_TEST: kiwi_live_image_test
 
     kiwi-{distri}-{version}-disk-x86_64:
-      - kiwi_disk_image_test
+      - kiwi_disk_image_test:
+          description: {KIWI_TEST_SUITES['kiwi_disk_image_test']['description']} for {distri} {version}
+
 """
         for version, distri in KIWI_DISTRO_MATRIX
     )
