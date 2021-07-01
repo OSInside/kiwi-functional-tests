@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, Literal, List, Union
+from typing import Dict, Literal, List, Optional, Union
 
 from osc import core
 from openqa_client.client import OpenQA_Client
@@ -37,34 +37,59 @@ class ObsImagePackage:
     test_suite: TestSuiteType
     subdir: str = ""
     arch: Arch = Arch.x86_64
+    extra_api_post_params: Dict[str, Union[str, int]] = field(
+        default_factory=dict
+    )
+    supports_uefi: bool = True
 
     @staticmethod
-    def new_live_iso_package(project: str, package: str) -> ObsImagePackage:
+    def new_live_iso_package(
+        project: str,
+        package: str,
+        extra_api_post_params: Optional[Dict[str, Union[str, int]]] = None,
+        supports_uefi: bool = True,
+    ) -> ObsImagePackage:
         return ObsImagePackage(
             project,
             package,
             repository="images",
             test_suite=TestSuiteType.LIVE_ISO,
             subdir="iso",
+            extra_api_post_params=extra_api_post_params or dict(),
+            supports_uefi=supports_uefi,
         )
 
     @staticmethod
-    def new_install_iso_package(project: str, package: str) -> ObsImagePackage:
+    def new_install_iso_package(
+        project: str,
+        package: str,
+        extra_api_post_params: Optional[Dict[str, Union[str, int]]] = None,
+        supports_uefi: bool = True,
+    ) -> ObsImagePackage:
         return ObsImagePackage(
             project,
             package,
             repository="images",
             test_suite=TestSuiteType.INSTALL_ISO,
             subdir="iso",
+            extra_api_post_params=extra_api_post_params or dict(),
+            supports_uefi=supports_uefi,
         )
 
     @staticmethod
-    def new_disk_image_package(project: str, package: str) -> ObsImagePackage:
+    def new_disk_image_package(
+        project: str,
+        package: str,
+        extra_api_post_params: Optional[Dict[str, Union[str, int]]] = None,
+        supports_uefi: bool = True,
+    ) -> ObsImagePackage:
         return ObsImagePackage(
             project,
             package,
             repository="images",
             test_suite=TestSuiteType.DISK_IMAGE,
+            extra_api_post_params=extra_api_post_params or dict(),
+            supports_uefi=supports_uefi,
         )
 
     def get_download_url(self, use_https: bool) -> str:
@@ -124,7 +149,10 @@ class ObsImagePackage:
     def create_api_post_params(
         self, use_https: bool = False
     ) -> Dict[str, Union[str, int]]:
-        params: Dict[str, Union[str, int]] = {"FLAVOR": str(self.test_suite)}
+        params: Dict[str, Union[str, int]] = {
+            **self.extra_api_post_params,
+            **{"FLAVOR": str(self.test_suite)},
+        }
         url = self.get_download_url(use_https)
         if (
             self.test_suite == TestSuiteType.INSTALL_ISO
@@ -229,7 +257,7 @@ class DistroTest:
                 launched_jobs.append(
                     client.openqa_request("POST", "isos", params, retries=0)
                 )
-            if self.with_uefi:
+            if self.with_uefi and pkg.supports_uefi:
                 params["UEFI"] = 1
                 uefi_pflash = get_uefi_pflash(openqa_host_os)
                 params["UEFI_PFLASH_CODE"] = uefi_pflash.code
