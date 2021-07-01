@@ -232,6 +232,9 @@ class DistroTest:
             # workaround for https://progress.opensuse.org/issues/94735
             "NEEDLES_DIR": casedir,
             "BUILD": build,
+            # MicroOS will refuse to install on small disks and since we use
+            # HDD_1_URL for the disk, openqa will *not* use HDDSIZEGB for that
+            "HDDSIZEGB_1": 20,
         }
 
     def trigger_tests(
