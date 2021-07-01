@@ -19,6 +19,14 @@ use strict;
 use testapi;
 
 sub run {
+    # in case we are not booting from an ISO, then eject the CD, so that openQA
+    # cannot boot from it
+    # in case REBOOT is not 1, then the cd has already been ejected and we don't
+    # need to remove it again
+    if (get_var('HDD_1') && (get_var('REBOOT', 0) == 0)) {
+        eject_cd(id => 'cd1-device', force => 1);
+    }
+
     # if we are rebooting, then we have to wait longer as the system is shutting
     # down (which also takes a bit)
     my $bootloader_timeout = get_var('REBOOT', 0) ? 30 : 10;
