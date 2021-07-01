@@ -175,7 +175,7 @@ scenarios:
 
 
 RAMDISK_EXTRA_PARAMS: Dict[str, Union[str, int]] = {"QEMURAM": 4096}
-
+LEGACY_EXTRA_PARAMS: Dict[str, Union[str, int]] = {"QEMURAM": 2048}
 
 TUMBLEWEED_OBS_PACKAGES = (
     [
@@ -187,7 +187,6 @@ TUMBLEWEED_OBS_PACKAGES = (
             "test-image-MicroOS",
             "test-image-custom-partitions",
             "test-image-disk",
-            "test-image-disk-legacy",
             "test-image-disk-simple",
             "test-image-luks",
             "test-image-lvm",
@@ -198,6 +197,11 @@ TUMBLEWEED_OBS_PACKAGES = (
         ]
     ]
     + [
+        ObsImagePackage.new_disk_image_package(
+            project="Virtualization:Appliances:Images:Testing_x86:tumbleweed",
+            package="test-image-disk-legacy",
+            extra_api_post_params=LEGACY_EXTRA_PARAMS,
+        ),
         ObsImagePackage.new_disk_image_package(
             project="Virtualization:Appliances:Images:Testing_x86:tumbleweed",
             package="test-image-disk-ramdisk",
@@ -218,15 +222,19 @@ TUMBLEWEED_OBS_PACKAGES = (
             "test-image-MicroOS",
             "test-image-custom-partitions",
             "test-image-disk",
-            "test-image-disk-legacy",
         ]
     ]
     + [
         ObsImagePackage.new_install_iso_package(
             project="Virtualization:Appliances:Images:Testing_x86:tumbleweed",
+            package="test-image-disk-legacy",
+            extra_api_post_params=LEGACY_EXTRA_PARAMS,
+        ),
+        ObsImagePackage.new_install_iso_package(
+            project="Virtualization:Appliances:Images:Testing_x86:tumbleweed",
             package="test-image-disk-ramdisk",
             extra_api_post_params=RAMDISK_EXTRA_PARAMS,
-        )
+        ),
     ]
     + [
         ObsImagePackage.new_live_iso_package(
