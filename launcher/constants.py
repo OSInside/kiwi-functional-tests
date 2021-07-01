@@ -22,7 +22,7 @@ job template for the kiwi job group (see :ref:`KIWI_JOB_TEMPLATE`).
 """
 
 from itertools import product
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Union
 
 from launcher.types import Product, TestSuite
 from launcher.image_tests import DistroTest, ObsImagePackage
@@ -174,6 +174,9 @@ scenarios:
 )
 
 
+RAMDISK_EXTRA_PARAMS: Dict[str, Union[str, int]] = {"QEMURAM": 4096}
+
+
 TUMBLEWEED_OBS_PACKAGES = (
     [
         ObsImagePackage.new_disk_image_package(
@@ -185,7 +188,6 @@ TUMBLEWEED_OBS_PACKAGES = (
             "test-image-custom-partitions",
             "test-image-disk",
             "test-image-disk-legacy",
-            "test-image-disk-ramdisk",
             "test-image-disk-simple",
             "test-image-luks",
             "test-image-lvm",
@@ -197,6 +199,13 @@ TUMBLEWEED_OBS_PACKAGES = (
         ]
     ]
     + [
+        ObsImagePackage.new_disk_image_package(
+            project="Virtualization:Appliances:Images:Testing_x86:tumbleweed",
+            package="test-image-disk-ramdisk",
+            extra_api_post_params=RAMDISK_EXTRA_PARAMS,
+        ),
+    ]
+    + [
         ObsImagePackage.new_install_iso_package(
             project="Virtualization:Appliances:Images:Testing_x86:tumbleweed",
             package=package,
@@ -206,8 +215,14 @@ TUMBLEWEED_OBS_PACKAGES = (
             "test-image-custom-partitions",
             "test-image-disk",
             "test-image-disk-legacy",
-            "test-image-disk-ramdisk",
         ]
+    ]
+    + [
+        ObsImagePackage.new_install_iso_package(
+            project="Virtualization:Appliances:Images:Testing_x86:tumbleweed",
+            package="test-image-disk-ramdisk",
+            extra_api_post_params=RAMDISK_EXTRA_PARAMS,
+        )
     ]
     + [
         ObsImagePackage.new_live_iso_package(
@@ -229,9 +244,15 @@ LEAP_OBS_PACKAGES = (
         for package in [
             "test-image-custom-partitions",
             "test-image-disk",
-            "test-image-disk-ramdisk",
             "test-image-manu",
         ]
+    ]
+    + [
+        ObsImagePackage.new_install_iso_package(
+            project="Virtualization:Appliances:Images:Testing_x86:leap",
+            package="test-image-disk-ramdisk",
+            extra_api_post_params=RAMDISK_EXTRA_PARAMS,
+        )
     ]
     + [
         ObsImagePackage.new_disk_image_package(
@@ -241,13 +262,19 @@ LEAP_OBS_PACKAGES = (
         for package in [
             "test-image-custom-partitions",
             "test-image-disk",
-            "test-image-disk-ramdisk",
             "test-image-disk-simple",
             "test-image-luks",
             "test-image-lvm",
             "test-image-manu",
             "test-image-overlayroot",
         ]
+    ]
+    + [
+        ObsImagePackage.new_disk_image_package(
+            project="Virtualization:Appliances:Images:Testing_x86:leap",
+            package="test-image-disk-ramdisk",
+            extra_api_post_params=RAMDISK_EXTRA_PARAMS,
+        )
     ]
     + [
         ObsImagePackage.new_live_iso_package(
