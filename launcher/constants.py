@@ -194,7 +194,6 @@ TUMBLEWEED_OBS_PACKAGES = (
             "test-image-orthos",
             "test-image-overlayroot",
             # FIXME: pxe? "test-image-pxe"
-            "test-image-qcow-openstack",
             "test-image-suse-on-dnf",
         ]
     ]
@@ -203,6 +202,11 @@ TUMBLEWEED_OBS_PACKAGES = (
             project="Virtualization:Appliances:Images:Testing_x86:tumbleweed",
             package="test-image-disk-ramdisk",
             extra_api_post_params=RAMDISK_EXTRA_PARAMS,
+        ),
+        ObsImagePackage.new_disk_image_package(
+            project="Virtualization:Appliances:Images:Testing_x86:tumbleweed",
+            package="test-image-qcow-openstack",
+            supports_uefi=False,
         ),
     ]
     + [
