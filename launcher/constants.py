@@ -230,17 +230,17 @@ TUMBLEWEED_OBS_PACKAGES = (
             package="test-image-disk-legacy",
             extra_api_post_params=LEGACY_EXTRA_PARAMS,
         ),
-        ObsImagePackage.new_install_iso_package(
-            project="Virtualization:Appliances:Images:Testing_x86:tumbleweed",
-            package="test-image-disk-ramdisk",
-            extra_api_post_params=RAMDISK_EXTRA_PARAMS,
-        ),
     ]
     + [
         ObsImagePackage.new_live_iso_package(
             project="Virtualization:Appliances:Images:Testing_x86:tumbleweed",
             package="test-image-live",
-        )
+        ),
+        ObsImagePackage.new_live_iso_package(
+            project="Virtualization:Appliances:Images:Testing_x86:tumbleweed",
+            package="test-image-disk-ramdisk",
+            extra_api_post_params=RAMDISK_EXTRA_PARAMS,
+        ),
     ]
 )
 OPENSUSE_TUMBLEWEED_TESTS = DistroTest(
@@ -258,13 +258,6 @@ LEAP_OBS_PACKAGES = (
             "test-image-disk",
             "test-image-manu",
         ]
-    ]
-    + [
-        ObsImagePackage.new_install_iso_package(
-            project="Virtualization:Appliances:Images:Testing_x86:leap",
-            package="test-image-disk-ramdisk",
-            extra_api_post_params=RAMDISK_EXTRA_PARAMS,
-        )
     ]
     + [
         ObsImagePackage.new_disk_image_package(
@@ -292,6 +285,13 @@ LEAP_OBS_PACKAGES = (
         ObsImagePackage.new_live_iso_package(
             project="Virtualization:Appliances:Images:Testing_x86:leap",
             package="test-image-live",
+        )
+    ]
+    + [
+        ObsImagePackage.new_install_iso_package(
+            project="Virtualization:Appliances:Images:Testing_x86:leap",
+            package="test-image-disk-ramdisk",
+            extra_api_post_params=RAMDISK_EXTRA_PARAMS,
         )
     ]
 )
