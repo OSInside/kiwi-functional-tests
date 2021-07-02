@@ -150,8 +150,8 @@ class ObsImagePackage:
         self, use_https: bool = False
     ) -> Dict[str, Union[str, int]]:
         params: Dict[str, Union[str, int]] = {
+            **{"FLAVOR": str(self.test_suite), "PACKAGE": self.package},
             **self.extra_api_post_params,
-            **{"FLAVOR": str(self.test_suite)},
         }
         url = self.get_download_url(use_https)
         if (

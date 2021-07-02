@@ -156,12 +156,12 @@ scenarios:
       - kiwi_live_image_test:
           description: {KIWI_TEST_SUITES['kiwi_live_image_test']['description']} for {distri} {version}
           settings:
-            PUBLISH_HDD_1: "%DISTRI%-%VERSION%-%ARCH%-%BUILD%.qcow2"
+            PUBLISH_HDD_1: "%DISTRI%-%VERSION%-%PACKAGE%-%ARCH%-%BUILD%.qcow2"
 
       - kiwi_disk_image_test:
           description: {KIWI_TEST_SUITES['kiwi_disk_image_test']['description']} for {distri} {version}
           settings:
-            HDD_1: "%DISTRI%-%VERSION%-%ARCH%-%BUILD%.qcow2"
+            HDD_1: "%DISTRI%-%VERSION%-%PACKAGE%-%ARCH%-%BUILD%.qcow2"
             START_AFTER_TEST: kiwi_live_image_test
 
     kiwi-{distri}-{version}-disk-x86_64:
