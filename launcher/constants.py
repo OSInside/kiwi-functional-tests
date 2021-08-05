@@ -288,7 +288,7 @@ LEAP_OBS_PACKAGES = (
         )
     ]
     + [
-        ObsImagePackage.new_install_iso_package(
+        ObsImagePackage.new_live_iso_package(
             project="Virtualization:Appliances:Images:Testing_x86:leap",
             package="test-image-disk-ramdisk",
             extra_api_post_params=RAMDISK_EXTRA_PARAMS,
