@@ -117,7 +117,7 @@ class ObsImagePackage:
 
         if (l := len(published_binaries_of_pkg)) != 1:
             raise RuntimeError(
-                f"Expected one published binary, but got {l}: "
+                f"Expected one published binary for {self.package}, but got {l}: "
                 + ", ".join(published_binaries_of_pkg)
             )
 
@@ -128,14 +128,16 @@ class ObsImagePackage:
         ):
             if binary[-4:] != ".iso":
                 raise RuntimeError(
-                    "Expected to find an iso, but got: " + binary
+                    "Expected to find an iso for {self.package}, but got: "
+                    + binary
                 )
 
         else:
             assert self.test_suite == TestSuiteType.DISK_IMAGE
             if binary[-3:] != ".xz" and binary[-6:] != ".qcow2":
                 raise RuntimeError(
-                    "Expected to find a disk image, but got: " + binary
+                    "Expected to find a disk image for {self.package}, but got: "
+                    + binary
                 )
 
         return (
@@ -246,32 +248,32 @@ class DistroTest:
         openqa_host_os: OpenqaHostOsT = "opensuse",
     ) -> List[JobScheduledReply]:
 
-        launched_jobs = []
-
+        all_params = []
         for pkg in self.packages:
             params = self._params_from_pkg(
                 pkg,
                 casedir,
                 build,
             )
-            if dry_run:
-                print("POST", "isos", params)
-            else:
-                launched_jobs.append(
-                    client.openqa_request("POST", "isos", params, retries=0)
-                )
+            all_params.append({**params})
+
             if self.with_uefi and pkg.supports_uefi:
                 params["UEFI"] = 1
                 uefi_pflash = get_uefi_pflash(openqa_host_os)
                 params["UEFI_PFLASH_CODE"] = uefi_pflash.code
                 params["UEFI_PFLASH_VARS"] = uefi_pflash.vars
-                if dry_run:
-                    print("POST", "isos", params)
-                else:
-                    launched_jobs.append(
-                        client.openqa_request(
-                            "POST", "isos", params, retries=1
-                        )
+                all_params.append({**params})
+
+        launched_jobs = []
+
+        for param_dict in all_params:
+            if dry_run:
+                print("POST", "isos", param_dict)
+            else:
+                launched_jobs.append(
+                    client.openqa_request(
+                        "POST", "isos", param_dict, retries=0
                     )
+                )
 
         return launched_jobs
