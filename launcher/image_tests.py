@@ -105,6 +105,7 @@ class ObsImagePackage:
             if binary[-4:] == ".iso"
             or binary[-3:] == ".xz"
             or binary[-6:] == ".qcow2"
+            or binary[-4:] == ".raw"
         ]
 
         published_binaries = core.get_binarylist_published(
@@ -128,15 +129,19 @@ class ObsImagePackage:
         ):
             if binary[-4:] != ".iso":
                 raise RuntimeError(
-                    "Expected to find an iso for {self.package}, but got: "
+                    f"Expected to find an iso for {self.package}, but got: "
                     + binary
                 )
 
         else:
             assert self.test_suite == TestSuiteType.DISK_IMAGE
-            if binary[-3:] != ".xz" and binary[-6:] != ".qcow2":
+            if (
+                binary[-3:] != ".xz"
+                and binary[-6:] != ".qcow2"
+                and binary[-4:] != ".raw"
+            ):
                 raise RuntimeError(
-                    "Expected to find a disk image for {self.package}, but got: "
+                    f"Expected to find a disk image for {self.package}, but got: "
                     + binary
                 )
 
