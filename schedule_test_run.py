@@ -3,8 +3,6 @@
 from itertools import chain
 from typing import List
 
-from launcher.running_build import RunningBuild
-
 
 if __name__ == "__main__":
     from argparse import ArgumentParser
@@ -23,9 +21,12 @@ if __name__ == "__main__":
         OPENSUSE_LEAP_TESTS,
         OPENSUSE_TUMBLEWEED_TESTS,
         OPENSUSE_DISTRI,
+        SLE_DISTRI,
+        SLE_15_TESTS,
         KIWI_DISTRO_MATRIX,
     )
     from launcher.image_tests import DistroTest
+    from launcher.running_build import RunningBuild
 
     # initialize the config datastructures or else the fetch of the published
     # binaries fails
@@ -56,7 +57,7 @@ Defaults to today's date formated as year+month+day""",
         help="""Only schedule tests for the supplied distribution.
 Defaults to all distributions.""",
         default=None,
-        choices=[OPENSUSE_DISTRI, FEDORA_DISTRI],
+        choices=[OPENSUSE_DISTRI, FEDORA_DISTRI, SLE_DISTRI],
         nargs="+",
         type=str,
     )
@@ -115,6 +116,8 @@ Only enable this when the openQA host can reach download.opensuse.org via https
             all_tests += [OPENSUSE_TUMBLEWEED_TESTS, OPENSUSE_LEAP_TESTS]
         if FEDORA_DISTRI in args.distri:
             all_tests += [FEDORA_RAWHIDE_TESTS, FEDORA_RELEASED_TESTS]
+        if SLE_DISTRI in args.distri:
+            all_tests += [SLE_15_TESTS]
     elif args.version_distri is not None:
         for ver_distri in args.version_distri:
             matching_test = [

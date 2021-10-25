@@ -74,15 +74,25 @@ FEDORA_DISTRI = "fedora"
 FEDORA_RAWHIDE_VERSION = "Rawhide"
 FEDORA_RELEASED_VERSION = "33"
 
+SLE_DISTRI = "sle"
+SLE_15_VERSION = "15"
+
 
 #: List of all tuples ($version, $distri) that are included in the kiwi test
 #: suite
-KIWI_DISTRO_MATRIX: List[Tuple[str, str]] = list(
-    product(
-        (OPENSUSE_TUMBLEWEED_VERSION, OPENSUSE_LEAP_VERSION), [OPENSUSE_DISTRI]
+KIWI_DISTRO_MATRIX: List[Tuple[str, str]] = (
+    list(
+        product(
+            (OPENSUSE_TUMBLEWEED_VERSION, OPENSUSE_LEAP_VERSION),
+            [OPENSUSE_DISTRI],
+        )
     )
-) + list(
-    product((FEDORA_RELEASED_VERSION, FEDORA_RAWHIDE_VERSION), [FEDORA_DISTRI])
+    + list(
+        product(
+            (FEDORA_RELEASED_VERSION, FEDORA_RAWHIDE_VERSION), [FEDORA_DISTRI]
+        )
+    )
+    + [(SLE_15_VERSION, SLE_DISTRI)]
 )
 
 #: all product flavors used (these are closely related to the respective test
@@ -370,11 +380,29 @@ FEDORA_RAWHIDE_TESTS = DistroTest(
     FEDORA_DISTRI, FEDORA_RAWHIDE_VERSION, FEDORA_RAWHIDE_PACKAGES
 )
 
-ALL_TESTS = [
+
+SLE_15_PACKAGES = [
+    ObsImagePackage.new_disk_image_package(
+        project="Virtualization:Appliances:Images:Testing_x86:sle15",
+        package="test-image-disk",
+    ),
+    ObsImagePackage.new_install_iso_package(
+        project="Virtualization:Appliances:Images:Testing_x86:sle15",
+        package="test-image-disk",
+    ),
+]
+
+
+SLE_15_TESTS = DistroTest(
+    distri=SLE_DISTRI, version=SLE_15_VERSION, packages=SLE_15_PACKAGES
+)
+
+ALL_TESTS: List[DistroTest] = [
     OPENSUSE_TUMBLEWEED_TESTS,
     OPENSUSE_LEAP_TESTS,
     FEDORA_RAWHIDE_TESTS,
     FEDORA_RELEASED_TESTS,
+    SLE_15_TESTS,
 ]
 
 
