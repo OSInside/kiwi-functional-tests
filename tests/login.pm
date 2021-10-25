@@ -35,6 +35,49 @@ sub run {
     # setting pipefail remedies that
     assert_script_run('set -o pipefail');
     assert_script_run('systemd-analyze blame | head -n 15');
+
+    # perform a sanity check that we got the correct distribution + version
+    my $distri = get_var('DISTRI');
+    my $version = get_var('VERSION');
+
+    if ($distri eq 'opensuse') {
+        # for opensuse we get
+        # ID="opensuse-tumbleweed" or ID="opensuse-leap" or ID="opensuse-microos"
+        assert_script_run('. /etc/os-release && [[ "${ID}" =~ "opensuse" ]]');
+
+        if (get_var('HDD_1') =~ /MicroOS/) {
+            assert_script_run('. /etc/os-release && [[ "${ID}" =~ "microos" ]]');
+        } else {
+            assert_script_run('. /etc/os-release && [[ "${ID}" =~ "' . lc($version) . '" ]]');
+        }
+    } elsif ($distri eq 'fedora') {
+        # in Fedora we get:
+        # ID=fedora
+        # VERSION_ID=34
+
+        # VERSION_ID must be a number:
+        assert_script_run('. /etc/os-release && [[ "${VERSION_ID}" =~ ^[0-9]{,4}$ ]]');
+
+        # we don't know the exact version on Rawhide
+        if (lc($version) ne 'rawhide') {
+            assert_script_run('. /etc/os-release && [[ "${VERSION_ID}" = "' . $version . '" ]]');
+        }
+
+        my $id_check_res = script_run('. /etc/os-release && [[ "${ID}" = "' . $distri . '" ]]', timeout => 1);
+        if ($id_check_res == 1 && script_run('. /etc/os-release && [[ "${ID}" = "generic" ]]', timeout => 1) == 0) {
+            record_soft_failure('ID in /etc/os-release is wrong (https://github.com/OSInside/kiwi/issues/1957)');
+        } else {
+            die 'checking ID in /etc/os-release failed';
+        }
+    } elsif ($distri eq 'sle') {
+        # on SLE:
+        # ID="sles"
+        # VERSION_ID="15.2"
+        assert_script_run('. /etc/os-release && [[ "${VERSION_ID}" =~ "' . $version . '" ]]');
+        assert_script_run('. /etc/os-release && [[ "${ID}" = "sles" ]]');
+    } else {
+        die("No sanity check for $distri-$version is defined!");
+    }
 }
 
 sub test_flags {
