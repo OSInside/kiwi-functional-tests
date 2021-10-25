@@ -234,7 +234,15 @@ TUMBLEWEED_OBS_PACKAGES = (
     + [
         ObsImagePackage.new_live_iso_package(
             project="Virtualization:Appliances:Images:Testing_x86:tumbleweed",
-            package="test-image-live",
+            package="test-image-live:BIOS",
+        ),
+        ObsImagePackage.new_live_iso_package(
+            project="Virtualization:Appliances:Images:Testing_x86:tumbleweed",
+            package="test-image-live:Standard",
+        ),
+        ObsImagePackage.new_live_iso_package(
+            project="Virtualization:Appliances:Images:Testing_x86:tumbleweed",
+            package="test-image-live:Secure",
         ),
         ObsImagePackage.new_live_iso_package(
             project="Virtualization:Appliances:Images:Testing_x86:tumbleweed",
