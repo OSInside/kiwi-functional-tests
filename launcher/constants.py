@@ -204,6 +204,7 @@ TUMBLEWEED_OBS_PACKAGES = (
             "test-image-overlayroot",
             # FIXME: pxe? "test-image-pxe"
             "test-image-suse-on-dnf",
+            "test-image-raid",
         ]
     ]
     + [
@@ -232,6 +233,7 @@ TUMBLEWEED_OBS_PACKAGES = (
             "test-image-MicroOS",
             "test-image-custom-partitions",
             "test-image-disk",
+            "test-image-raid",
         ]
     ]
     + [

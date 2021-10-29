@@ -41,7 +41,7 @@ sub run {
         my $version = get_var('VERSION');
         record_soft_failure("bootloader is not visible for $distri $version in UEFI mode");
     } elsif (!defined($match)) {
-        die "Did not see the bootloader";
+        die 'Did not see the bootloader';
     }
 
     # Check now whether we have to handle UEFI certificates or whether the
@@ -83,14 +83,21 @@ sub run {
     # takes its time)
     my $timeout = defined(get_var('PUBLISH_HDD_1')) ? 600 : 120;
 
-    # appliances based on MicroOS will spend a loooong time installing &
-    # verifying the disk image
-    assert_screen([qw(login_prompt installation_screen)], $timeout);
+    # - appliances based on MicroOS will spend a loooong time installing &
+    #   verifying the disk image
+    # - The raid images require you to confirm that you want to destroy
+    #   everything on /dev/disk/by-id/$whatever
+    assert_screen([qw(login_prompt installation_screen confirm_disk_destroy)], $timeout);
 
     # => if we see the installation screen, then wait again for up to ten
     # minutes for it to finally finish installation & disk verify
     if (match_has_tag('installation_screen')) {
-        die "Saw the installation screen on the second boot" if get_var('REBOOT', 0) == 1;
+        die 'Saw the installation screen on the second boot' if get_var('REBOOT', 0) == 1;
+        assert_screen('login_prompt', 600);
+    } elsif (match_has_tag('confirm_disk_destroy')) {
+        # FIXME: do we need something like this:
+        # die 'Saw the installation screen on the second boot' if get_var('REBOOT', 0) == 1;
+        send_key('ret');
         assert_screen('login_prompt', 600);
     }
 }
