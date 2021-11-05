@@ -205,6 +205,7 @@ TUMBLEWEED_OBS_PACKAGES = (
             # FIXME: pxe? "test-image-pxe"
             "test-image-suse-on-dnf",
             "test-image-raid",
+            "test-image-bundle-format",
         ]
     ]
     + [
