@@ -190,8 +190,8 @@ class UefiPflash:
 
 #: Locations of the UEFI binaries on openSUSE
 OPENSUSE_UEFI_PFLASH = UefiPflash(
-    vars="/usr/share/qemu/ovmf-x86_64-ms-vars.bin",
-    code="/usr/share/qemu/ovmf-x86_64-ms-code.bin",
+    vars="/usr/share/qemu/ovmf-x86_64-vars.bin",
+    code="/usr/share/qemu/ovmf-x86_64-code.bin",
 )
 #: Locations of the UEFI binaries on Fedora, files are provided by the
 #: edk2-ovmf package
