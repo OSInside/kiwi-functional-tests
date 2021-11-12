@@ -277,7 +277,6 @@ LEAP_OBS_PACKAGES = (
         for package in [
             "test-image-custom-partitions",
             "test-image-disk",
-            "test-image-manu",
         ]
     ]
     + [
@@ -291,7 +290,6 @@ LEAP_OBS_PACKAGES = (
             "test-image-disk-simple",
             "test-image-luks",
             "test-image-lvm",
-            "test-image-manu",
             "test-image-overlayroot",
         ]
     ]
