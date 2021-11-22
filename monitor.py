@@ -1,12 +1,27 @@
 #!/usr/bin/env python3
 
+from typing import Any, Dict
+from prettytable import PrettyTable
+
+
+def format_dict(d: Dict[str, Any]) -> str:
+    table = PrettyTable(["variable", "value"])
+    table.align = "l"
+    table.border = False
+    table.header = False
+    table.left_padding_width = 1
+    table.right_padding_width = 1
+    table.max_width = 120
+    for k, v in d.items():
+        table.add_row([k, str(v)])
+    return table.get_string()
+
 
 if __name__ == "__main__":
     from argparse import ArgumentParser
     from pickle import load
 
     from launcher.client import NoWaitClient
-
     from launcher.argparser import SERVER_PARSER
     from launcher.constants import COLORS
     from launcher.running_build import RunningBuild
@@ -47,6 +62,9 @@ if __name__ == "__main__":
     )
 
     if args.print_state:
+        table = PrettyTable(["test URL", "state", "result", "settings"])
+        table.align = "l"
+
         states = running_build.get_job_states()
         for job_id in states:
             state = states[job_id]
@@ -60,13 +78,30 @@ if __name__ == "__main__":
                 "user_cancelled": COLORS.WARNING,
             }.get(state["state"]) or COLORS.OKBLUE
 
-            print(
-                f"{client.baseurl}/tests/{job_id}: "
-                f"state: {color}{state['state']}{COLORS.ENDC}, "
-                + f"result: {state['result']}"
+            table.add_row(
+                [
+                    f"{client.baseurl}/tests/{job_id}",
+                    f"{color}{state['state']}{COLORS.ENDC}",
+                    state["result"],
+                    format_dict(state["settings"])
+                    if args.verbose
+                    else format_dict(
+                        {
+                            k: state["settings"].get(k, None)
+                            for k in [
+                                "DISTRI",
+                                "FLAVOR",
+                                "VERSION",
+                                "UEFI",
+                                "HDD_1",
+                                "ISO_1",
+                            ]
+                            if k in state["settings"]
+                        }
+                    ),
+                ]
             )
-            if args.verbose:
-                print("settings: " + str(state["settings"]))
+        print(table)
 
     if args.cancel:
         running_build.cancel_all_jobs()
