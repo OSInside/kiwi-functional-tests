@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, Literal, List, Optional, Union
+from typing import Dict, Literal, List, Union
 
 from osc import core
 from openqa_client.client import OpenQA_Client
@@ -50,8 +50,8 @@ def get_efi_testsuite(test_suite: TestSuiteType) -> EfiTestSuiteType:
 class ObsImagePackage:
     project: str
     package: str
-    repository: str
     test_suite: TestSuiteType
+    repository: str = "images"
     subdir: str = ""
     arch: Arch = Arch.x86_64
     extra_api_post_params: Dict[str, Union[str, int]] = field(
@@ -61,52 +61,44 @@ class ObsImagePackage:
 
     @staticmethod
     def new_live_iso_package(
-        project: str,
-        package: str,
-        extra_api_post_params: Optional[Dict[str, Union[str, int]]] = None,
-        supports_uefi: bool = True,
+        project: str, package: str, **kwargs
     ) -> ObsImagePackage:
         return ObsImagePackage(
             project,
             package,
-            repository="images",
             test_suite=TestSuiteType.LIVE_ISO,
             subdir="iso",
-            extra_api_post_params=extra_api_post_params or dict(),
-            supports_uefi=supports_uefi,
+            extra_api_post_params=kwargs.pop("extra_api_post_params", dict()),
+            **kwargs,
         )
 
     @staticmethod
     def new_install_iso_package(
         project: str,
         package: str,
-        extra_api_post_params: Optional[Dict[str, Union[str, int]]] = None,
-        supports_uefi: bool = True,
+        **kwargs,
     ) -> ObsImagePackage:
         return ObsImagePackage(
             project,
             package,
-            repository="images",
             test_suite=TestSuiteType.INSTALL_ISO,
             subdir="iso",
-            extra_api_post_params=extra_api_post_params or dict(),
-            supports_uefi=supports_uefi,
+            extra_api_post_params=kwargs.pop("extra_api_post_params", dict()),
+            **kwargs,
         )
 
     @staticmethod
     def new_disk_image_package(
         project: str,
         package: str,
-        extra_api_post_params: Optional[Dict[str, Union[str, int]]] = None,
-        supports_uefi: bool = True,
+        **kwargs,
     ) -> ObsImagePackage:
         return ObsImagePackage(
             project,
             package,
-            repository="images",
             test_suite=TestSuiteType.DISK_IMAGE,
-            extra_api_post_params=extra_api_post_params or dict(),
-            supports_uefi=supports_uefi,
+            extra_api_post_params=kwargs.pop("extra_api_post_params", dict()),
+            **kwargs,
         )
 
     def get_download_url(self, use_https: bool) -> str:
