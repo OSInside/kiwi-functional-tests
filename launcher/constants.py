@@ -2,23 +2,26 @@
 products.
 
 The kiwi tests are currently structured as follows:
-We have 3 base test suites:
-- `kiwi_disk_image_test`: this test suite is intended for various disk images
-                          that kiwi produces. openQA boots from these, logs in,
-                          reboots them and tries the same again.
-- `kiwi_install_test`: this is a test suite for unattended installation
-                       ISOs. openQA boots from them and waits for the
-                       installation to finish.
-- `kiwi_live_image_test`: a test suite for live ISOs that are booted, then
-                          openQA logs in and shuts them down again.
+We have 2x3 base test suites:
+- `kiwi_disk_image_test{,_efi}`: this test suite is intended for various disk
+                                 images that kiwi produces. openQA boots from
+                                 these, logs in, reboots them and tries the same
+                                 again.
+- `kiwi_install_test{,_efi}`: this is a test suite for unattended installation
+                              ISOs. openQA boots from them and waits for the
+                              installation to finish.
+- `kiwi_live_image_test{,_efi}`: a test suite for live ISOs that are booted,
+                                 then openQA logs in and shuts them down again.
 
+The `_efi` suffixed variant boots in EFI mode, but is otherwise exactly the same
+as the BIOS variant.
 
 We want to run the above test suites for a combination of distributions and
 versions. We achieve this by creating a medium/product for each distribution +
-version combination that we want to test. The distribution + version
-combination is available in :ref:`KIWI_DISTRO_MATRIX`. From this we create the
-list of mediums/products and store it in :ref:`KIWI_PRODUCTS` as well as the
-job template for the kiwi job group (see :ref:`KIWI_JOB_TEMPLATE`).
+version combination that we want to test. The distribution + version combination
+is available in :py:const:`KIWI_DISTRO_MATRIX`. From this we create the list of
+mediums/products and store it in :py:const:`KIWI_PRODUCTS` as well as the job
+template for the kiwi job group (see :py:const:`KIWI_JOB_TEMPLATE`).
 """
 
 from itertools import product
@@ -51,18 +54,36 @@ KIWI_TEST_SUITES: Dict[str, TestSuite] = {
         "description": "Test a disk image produced by kiwi",
         "settings": [],
     },
+    "kiwi_disk_image_test_efi": {
+        "description": "Test a disk image produced by kiwi in EFI mode",
+        "settings": [{"key": "UEFI", "value": "1"}],
+    },
     "kiwi_install_test": {
         "description": "Runs the installation from a kiwi disk image",
         "settings": [
             {
                 "key": "PUBLISH_HDD_1",
-                "value": "%DISTRI%-%VERSION%-%ARCH%-%BUILD%.qcow2",
+                "value": "kiwi-%DISTRI%-%VERSION%-%ARCH%-%BUILD%-non-efi.qcow2",
             }
+        ],
+    },
+    "kiwi_install_test_efi": {
+        "description": "Runs the installation from a kiwi disk image in EFI mode",
+        "settings": [
+            {
+                "key": "PUBLISH_HDD_1",
+                "value": "kiwi-%DISTRI%-%VERSION%-%ARCH%-%BUILD%-efi.qcow2",
+            },
+            {"key": "UEFI", "value": "1"},
         ],
     },
     "kiwi_live_image_test": {
         "description": "Tests of the kiwi live images",
         "settings": [],
+    },
+    "kiwi_live_image_test_efi": {
+        "description": "Tests of the kiwi live images in EFI mode",
+        "settings": [{"key": "UEFI", "value": "1"}],
     },
 }
 
@@ -99,8 +120,11 @@ KIWI_DISTRO_MATRIX: List[Tuple[str, str]] = (
 #: suites)
 KIWI_FLAVORS = [
     "kiwi-test-iso",
+    "kiwi-test-iso-efi",
     "kiwi-test-disk",
+    "kiwi-test-disk-efi",
     "kiwi-install-iso",
+    "kiwi-install-iso-efi",
 ]
 
 
@@ -141,14 +165,26 @@ products:"""
     distri: {distri}
     version: {version}
     flavor: kiwi-test-iso
+  kiwi-{distri}-{version}-live-iso-x86_64-efi:
+    distri: {distri}
+    version: {version}
+    flavor: kiwi-test-iso-efi
   kiwi-{distri}-{version}-install-iso-x86_64:
     distri: {distri}
     version: {version}
     flavor: kiwi-install-iso
+  kiwi-{distri}-{version}-install-iso-x86_64-efi:
+    distri: {distri}
+    version: {version}
+    flavor: kiwi-install-iso-efi
   kiwi-{distri}-{version}-disk-x86_64:
     distri: {distri}
     version: {version}
     flavor: kiwi-test-disk
+  kiwi-{distri}-{version}-disk-x86_64-efi:
+    distri: {distri}
+    version: {version}
+    flavor: kiwi-test-disk-efi
 """
         for version, distri in KIWI_DISTRO_MATRIX
     )
@@ -162,21 +198,41 @@ scenarios:
       - kiwi_live_image_test:
           description: {KIWI_TEST_SUITES['kiwi_live_image_test']['description']} for {distri} {version}
 
+    kiwi-{distri}-{version}-live-iso-x86_64-efi:
+      - kiwi_live_image_test_efi:
+          description: {KIWI_TEST_SUITES['kiwi_live_image_test_efi']['description']} for {distri} {version}
+
     kiwi-{distri}-{version}-install-iso-x86_64:
       - kiwi_live_image_test:
           description: {KIWI_TEST_SUITES['kiwi_live_image_test']['description']} for {distri} {version}
           settings:
-            PUBLISH_HDD_1: "%DISTRI%-%VERSION%-%PACKAGE%-%ARCH%-%BUILD%.qcow2"
+            PUBLISH_HDD_1: "kiwi-%DISTRI%-%VERSION%-%PACKAGE%-%ARCH%-%BUILD%-non-efi.qcow2"
 
       - kiwi_disk_image_test:
           description: {KIWI_TEST_SUITES['kiwi_disk_image_test']['description']} for {distri} {version}
           settings:
-            HDD_1: "%DISTRI%-%VERSION%-%PACKAGE%-%ARCH%-%BUILD%.qcow2"
+            HDD_1: "kiwi-%DISTRI%-%VERSION%-%PACKAGE%-%ARCH%-%BUILD%-non-efi.qcow2"
             START_AFTER_TEST: kiwi_live_image_test
+
+    kiwi-{distri}-{version}-install-iso-x86_64-efi:
+      - kiwi_live_image_test_efi:
+          description: {KIWI_TEST_SUITES['kiwi_live_image_test_efi']['description']} for {distri} {version}
+          settings:
+            PUBLISH_HDD_1: "kiwi-%DISTRI%-%VERSION%-%PACKAGE%-%ARCH%-%BUILD%-efi.qcow2"
+
+      - kiwi_disk_image_test_efi:
+          description: {KIWI_TEST_SUITES['kiwi_disk_image_test_efi']['description']} for {distri} {version}
+          settings:
+            HDD_1: "kiwi-%DISTRI%-%VERSION%-%PACKAGE%-%ARCH%-%BUILD%-efi.qcow2"
+            START_AFTER_TEST: kiwi_live_image_test_efi
 
     kiwi-{distri}-{version}-disk-x86_64:
       - kiwi_disk_image_test:
           description: {KIWI_TEST_SUITES['kiwi_disk_image_test']['description']} for {distri} {version}
+
+    kiwi-{distri}-{version}-disk-x86_64-efi:
+      - kiwi_disk_image_test_efi:
+          description: {KIWI_TEST_SUITES['kiwi_disk_image_test_efi']['description']} for {distri} {version}
 
 """
         for version, distri in KIWI_DISTRO_MATRIX

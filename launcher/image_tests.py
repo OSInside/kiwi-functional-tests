@@ -29,6 +29,23 @@ class TestSuiteType(Enum):
         return self.value
 
 
+class EfiTestSuiteType(Enum):
+    LIVE_ISO = "kiwi-test-iso-efi"
+    INSTALL_ISO = "kiwi-install-iso-efi"
+    DISK_IMAGE = "kiwi-test-disk-efi"
+
+    def __str__(self) -> str:
+        return self.value
+
+
+def get_efi_testsuite(test_suite: TestSuiteType) -> EfiTestSuiteType:
+    return {
+        TestSuiteType.DISK_IMAGE: EfiTestSuiteType.DISK_IMAGE,
+        TestSuiteType.INSTALL_ISO: EfiTestSuiteType.INSTALL_ISO,
+        TestSuiteType.LIVE_ISO: EfiTestSuiteType.LIVE_ISO,
+    }[test_suite]
+
+
 @dataclass(frozen=True)
 class ObsImagePackage:
     project: str
@@ -154,10 +171,20 @@ class ObsImagePackage:
         )
 
     def create_api_post_params(
-        self, use_https: bool = False
+        self, efi_mode: bool, use_https: bool = False
     ) -> Dict[str, Union[str, int]]:
+        if efi_mode and not self.supports_uefi:
+            raise ValueError(
+                f"Cannot create api POST parameters for {self.package} in EFI mode: this image does not support EFI"
+            )
+
+        flavor = str(
+            self.test_suite
+            if not efi_mode
+            else get_efi_testsuite(self.test_suite)
+        )
         params: Dict[str, Union[str, int]] = {
-            **{"FLAVOR": str(self.test_suite), "PACKAGE": self.package},
+            **{"FLAVOR": flavor, "PACKAGE": self.package},
             **self.extra_api_post_params,
         }
         url = self.get_download_url(use_https)
@@ -225,11 +252,11 @@ class DistroTest:
     use_https_for_asset_download: bool = False
 
     def _params_from_pkg(
-        self, pkg: ObsImagePackage, casedir: str, build: str
+        self, pkg: ObsImagePackage, casedir: str, build: str, efi_mode: bool
     ) -> Dict[str, Union[str, int]]:
         return {
             **pkg.create_api_post_params(
-                use_https=self.use_https_for_asset_download
+                use_https=self.use_https_for_asset_download, efi_mode=efi_mode
             ),
             "DISTRI": self.distri,
             "ARCH": str(pkg.arch),
@@ -255,19 +282,18 @@ class DistroTest:
 
         all_params = []
         for pkg in self.packages:
-            params = self._params_from_pkg(
-                pkg,
-                casedir,
-                build,
+            all_params.append(
+                {**self._params_from_pkg(pkg, casedir, build, efi_mode=False)}
             )
-            all_params.append({**params})
 
             if self.with_uefi and pkg.supports_uefi:
-                params["UEFI"] = 1
+                efi_params = self._params_from_pkg(
+                    pkg, casedir, build, efi_mode=True
+                )
                 uefi_pflash = get_uefi_pflash(openqa_host_os)
-                params["UEFI_PFLASH_CODE"] = uefi_pflash.code
-                params["UEFI_PFLASH_VARS"] = uefi_pflash.vars
-                all_params.append({**params})
+                efi_params["UEFI_PFLASH_CODE"] = uefi_pflash.code
+                efi_params["UEFI_PFLASH_VARS"] = uefi_pflash.vars
+                all_params.append({**efi_params})
 
         launched_jobs = []
 
