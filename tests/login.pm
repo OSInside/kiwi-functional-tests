@@ -71,6 +71,12 @@ sub run {
         # VERSION_ID="15.2"
         assert_script_run('. /etc/os-release && [[ "${VERSION_ID}" =~ "' . $version . '" ]]');
         assert_script_run('. /etc/os-release && [[ "${ID}" = "sles" ]]');
+    } elsif ($distri eq 'centos') {
+        # on CentOS:
+        # ID="centos"
+        # VERSION_ID="7"
+        assert_script_run('. /etc/os-release && [[ "${VERSION_ID}" = "' . $version . '" ]]');
+        assert_script_run('. /etc/os-release && [[ "${ID}" = "' . $distri . '" ]]');
     } else {
         die("No sanity check for $distri-$version is defined!");
     }

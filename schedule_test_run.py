@@ -15,6 +15,9 @@ if __name__ == "__main__":
     from launcher.client import NoWaitClient
     from launcher.constants import (
         ALL_TESTS,
+        CENTOS_8_TESTS,
+        CENTOS_9_TESTS,
+        CENTOS_DISTRI,
         FEDORA_DISTRI,
         FEDORA_RELEASED_TESTS,
         FEDORA_RAWHIDE_TESTS,
@@ -57,7 +60,7 @@ Defaults to today's date formated as year+month+day""",
         help="""Only schedule tests for the supplied distribution.
 Defaults to all distributions.""",
         default=None,
-        choices=[OPENSUSE_DISTRI, FEDORA_DISTRI, SLE_DISTRI],
+        choices=[OPENSUSE_DISTRI, FEDORA_DISTRI, SLE_DISTRI, CENTOS_DISTRI],
         nargs="+",
         type=str,
     )
@@ -118,6 +121,8 @@ Only enable this when the openQA host can reach download.opensuse.org via https
             all_tests += [FEDORA_RAWHIDE_TESTS, FEDORA_RELEASED_TESTS]
         if SLE_DISTRI in args.distri:
             all_tests += [SLE_15_TESTS]
+        if CENTOS_DISTRI in args.distri:
+            all_tests += [CENTOS_8_TESTS, CENTOS_9_TESTS]
     elif args.version_distri is not None:
         for ver_distri in args.version_distri:
             matching_test = [

@@ -98,6 +98,10 @@ FEDORA_RELEASED_VERSION = "34"
 SLE_DISTRI = "sle"
 SLE_15_VERSION = "15"
 
+CENTOS_DISTRI = "centos"
+CENTOS_8_VERSION = "8"
+CENTOS_9_VERSION = "9"
+
 
 #: List of all tuples ($version, $distri) that are included in the kiwi test
 #: suite
@@ -114,6 +118,12 @@ KIWI_DISTRO_MATRIX: List[Tuple[str, str]] = (
         )
     )
     + [(SLE_15_VERSION, SLE_DISTRI)]
+    + list(
+        product(
+            (CENTOS_8_VERSION, CENTOS_9_VERSION),
+            [CENTOS_DISTRI],
+        )
+    )
 )
 
 #: all product flavors used (these are closely related to the respective test
@@ -455,12 +465,51 @@ SLE_15_TESTS = DistroTest(
     distri=SLE_DISTRI, version=SLE_15_VERSION, packages=SLE_15_PACKAGES
 )
 
+_CENTOS_PROJECT = "Virtualization:Appliances:Images:Testing_x86:centos"
+_CENTOS_8_REPO = "images_CentOS8"
+_CENTOS_9_REPO = "images_CentOS9"
+
+(CENTOS_8_TESTS, CENTOS_9_TESTS) = (
+    DistroTest(
+        distri=CENTOS_DISTRI,
+        version=ver,
+        packages=[
+            ObsImagePackage.new_install_iso_package(
+                project=_CENTOS_PROJECT,
+                repository=repo,
+                package=f"test-image-live-disk-v{ver}:Disk",
+            ),
+            ObsImagePackage.new_disk_image_package(
+                project=_CENTOS_PROJECT,
+                repository=repo,
+                package=f"test-image-live-disk-v{ver}:Disk",
+            ),
+            ObsImagePackage.new_live_iso_package(
+                project=_CENTOS_PROJECT,
+                repository=repo,
+                package=f"test-image-live-disk-v{ver}:Live",
+            ),
+            ObsImagePackage.new_disk_image_package(
+                project=_CENTOS_PROJECT,
+                repository=repo,
+                package=f"test-image-live-disk-v{ver}:Virtual",
+            ),
+        ],
+    )
+    for (ver, repo) in (
+        (CENTOS_8_VERSION, _CENTOS_8_REPO),
+        (CENTOS_9_VERSION, _CENTOS_9_REPO),
+    )
+)
+
 ALL_TESTS: List[DistroTest] = [
     OPENSUSE_TUMBLEWEED_TESTS,
     OPENSUSE_LEAP_TESTS,
     FEDORA_RAWHIDE_TESTS,
     FEDORA_RELEASED_TESTS,
     SLE_15_TESTS,
+    CENTOS_8_TESTS,
+    CENTOS_9_TESTS,
 ]
 
 
