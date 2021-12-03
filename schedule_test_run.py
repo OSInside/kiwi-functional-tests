@@ -18,6 +18,10 @@ if __name__ == "__main__":
         CENTOS_8_TESTS,
         CENTOS_9_TESTS,
         CENTOS_DISTRI,
+        ARCHLINUX_DISTRI,
+        ARCHLINUX_TESTS,
+        DEBIAN_DISTRI,
+        DEBIAN_TESTS,
         FEDORA_DISTRI,
         FEDORA_RELEASED_TESTS,
         FEDORA_RAWHIDE_TESTS,
@@ -26,6 +30,8 @@ if __name__ == "__main__":
         OPENSUSE_DISTRI,
         SLE_DISTRI,
         SLE_15_TESTS,
+        UBUNTU_DISTRI,
+        UBUNTU_TESTS,
         KIWI_DISTRO_MATRIX,
     )
     from launcher.image_tests import DistroTest
@@ -60,7 +66,15 @@ Defaults to today's date formated as year+month+day""",
         help="""Only schedule tests for the supplied distribution.
 Defaults to all distributions.""",
         default=None,
-        choices=[OPENSUSE_DISTRI, FEDORA_DISTRI, SLE_DISTRI, CENTOS_DISTRI],
+        choices=[
+            OPENSUSE_DISTRI,
+            FEDORA_DISTRI,
+            SLE_DISTRI,
+            CENTOS_DISTRI,
+            UBUNTU_DISTRI,
+            DEBIAN_DISTRI,
+            ARCHLINUX_DISTRI,
+        ],
         nargs="+",
         type=str,
     )
@@ -123,6 +137,12 @@ Only enable this when the openQA host can reach download.opensuse.org via https
             all_tests += [SLE_15_TESTS]
         if CENTOS_DISTRI in args.distri:
             all_tests += [CENTOS_8_TESTS, CENTOS_9_TESTS]
+        if UBUNTU_DISTRI in args.distri:
+            all_tests += [UBUNTU_TESTS]
+        if DEBIAN_DISTRI in args.distri:
+            all_tests += [DEBIAN_TESTS]
+        if ARCHLINUX_DISTRI in args.distri:
+            all_tests += [ARCHLINUX_TESTS]
     elif args.version_distri is not None:
         for ver_distri in args.version_distri:
             matching_test = [

@@ -71,12 +71,26 @@ sub run {
         # VERSION_ID="15.2"
         assert_script_run('. /etc/os-release && [[ "${VERSION_ID}" =~ "' . $version . '" ]]');
         assert_script_run('. /etc/os-release && [[ "${ID}" = "sles" ]]');
-    } elsif ($distri eq 'centos') {
+    } elsif (($distri eq 'centos') || ($distri eq 'debian') || ($distri eq 'ubuntu')) {
         # on CentOS:
         # ID="centos"
         # VERSION_ID="7"
+        #
+        # on Debian:
+        # ID=debian
+        # VERSION_ID="10"
+        #
+        # on Ubuntu:
+        # ID=ubuntu
+        # VERSION_ID="21.04"
         assert_script_run('. /etc/os-release && [[ "${VERSION_ID}" = "' . $version . '" ]]');
         assert_script_run('. /etc/os-release && [[ "${ID}" = "' . $distri . '" ]]');
+    } elsif ($distri eq 'archlinux') {
+        # on Arch:
+        # ID=arch
+        # BUILD_ID=rolling
+        assert_script_run('. /etc/os-release && [[ "${BUILD_ID}" = "' . $version . '" ]]');
+        assert_script_run('. /etc/os-release && [[ "${ID}" = "arch" ]]');
     } else {
         die("No sanity check for $distri-$version is defined!");
     }
