@@ -35,11 +35,13 @@ sub run {
     # we first check whether the bootloader is visible (fails on Fedora for
     # $reasons...)
     my $match = check_screen('kiwi_bootloader', timeout => $bootloader_timeout);
-    if ((get_var('DISTRI') eq 'fedora') && (defined(get_var('HDD_1'))) && (!defined($match))) {
-        record_soft_failure('No visible bootloader in the Fedora disk images');
+
+    my $distri = get_var('DISTRI');
+    my $version = get_var('VERSION');
+
+    if ((defined(get_var('HDD_1'))) && (!defined($match))) {
+        record_soft_failure("No visible bootloader in the disk image for $distri $version");
     } elsif (get_var('UEFI') && !defined($match)) {
-        my $distri = get_var('DISTRI');
-        my $version = get_var('VERSION');
         record_soft_failure("bootloader is not visible for $distri $version in UEFI mode");
     } elsif (!defined($match)) {
         die 'Did not see the bootloader';
