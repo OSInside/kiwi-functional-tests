@@ -47,7 +47,8 @@ if __name__ == "__main__":
         "-v",
         "--verbose",
         help="Print more info to stdout",
-        action="store_true",
+        action="count",
+        default=0,
     )
 
     args = parser.parse_args()
@@ -78,27 +79,32 @@ if __name__ == "__main__":
                 "user_cancelled": COLORS.WARNING,
             }.get(state["state"]) or COLORS.OKBLUE
 
+            if args.verbose == 0:
+                last_col = f"{state['settings']['DISTRI']} {state['settings']['VERSION']}: {(state['settings'].get('HDD_1') or state['settings']['ISO_1'])}"
+            elif args.verbose == 1:
+                last_col = format_dict(
+                    {
+                        k: state["settings"].get(k, None)
+                        for k in [
+                            "DISTRI",
+                            "FLAVOR",
+                            "VERSION",
+                            "UEFI",
+                            "HDD_1",
+                            "ISO_1",
+                        ]
+                        if k in state["settings"]
+                    }
+                )
+            else:
+                last_col = format_dict(state["settings"])
+
             table.add_row(
                 [
                     f"{client.baseurl}/tests/{job_id}",
                     f"{color}{state['state']}{COLORS.ENDC}",
                     state["result"],
-                    format_dict(state["settings"])
-                    if args.verbose
-                    else format_dict(
-                        {
-                            k: state["settings"].get(k, None)
-                            for k in [
-                                "DISTRI",
-                                "FLAVOR",
-                                "VERSION",
-                                "UEFI",
-                                "HDD_1",
-                                "ISO_1",
-                            ]
-                            if k in state["settings"]
-                        }
-                    ),
+                    last_col,
                 ]
             )
         print(table)
