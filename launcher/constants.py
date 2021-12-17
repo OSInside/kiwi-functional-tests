@@ -285,6 +285,7 @@ TUMBLEWEED_OBS_PACKAGES = (
             "test-image-suse-on-dnf",
             "test-image-raid",
             "test-image-bundle-format",
+            "test-image-partitions-and-volumes",
         ]
     ]
     + [
