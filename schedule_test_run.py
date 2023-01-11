@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 
-from itertools import chain
-from typing import List
-
 
 if __name__ == "__main__":
     from argparse import ArgumentParser
     from datetime import datetime
-    from pickle import dump
+    from itertools import chain
+    from json import dumps
+    from typing import List
 
     from osc import conf
 
@@ -175,9 +174,9 @@ Only enable this when the openQA host can reach download.opensuse.org via https
         filename = (
             f"kiwi_build_{build}_"
             + datetime.now().strftime("%Y_%B_%d-%H_%M_%S")
-            + ".pickle"
+            + ".json"
         )
-        with open(filename, "wb") as build_state_file:
-            dump(running_build, build_state_file)
+        with open(filename, "w") as build_state_file:
+            build_state_file.write(dumps(running_build.__dict__, indent="\t"))
 
         print(f"Wrote build state into {filename}")

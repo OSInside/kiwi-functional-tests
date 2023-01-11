@@ -19,7 +19,7 @@ def format_dict(d: Dict[str, Any]) -> str:
 
 if __name__ == "__main__":
     from argparse import ArgumentParser
-    from pickle import load
+    from json import loads
 
     from launcher.client import NoWaitClient
     from launcher.argparser import SERVER_PARSER
@@ -56,8 +56,8 @@ if __name__ == "__main__":
     if not args.print_state and not args.cancel:
         raise ValueError("Missing action for the monitoring script")
 
-    with open(args.state_file[0], "rb") as state_file:
-        running_build: RunningBuild = load(state_file)
+    with open(args.state_file[0], "r") as state_file:
+        running_build = RunningBuild(**loads(state_file.read()))
     client = NoWaitClient(
         server=running_build.server, scheme=running_build.scheme
     )
