@@ -11,7 +11,6 @@ from launcher.constants import (
 
 
 def ensure_kiwi_settings(client: OpenQA_Client) -> None:
-
     test_suites = client.openqa_request("GET", "test_suites")["TestSuites"]
 
     for suite_name in KIWI_TEST_SUITES:

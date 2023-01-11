@@ -235,7 +235,6 @@ def get_uefi_pflash(openqa_host_os: OpenqaHostOsT) -> UefiPflash:
 
 @dataclass
 class DistroTest:
-
     distri: str
     version: str
     packages: List[ObsImagePackage]
@@ -271,7 +270,6 @@ class DistroTest:
         dry_run: bool = False,
         openqa_host_os: OpenqaHostOsT = "opensuse",
     ) -> List[JobScheduledReply]:
-
         all_params = []
         for pkg in self.packages:
             all_params.append(
