@@ -32,10 +32,9 @@ sub run {
     send_key('ctrl-l');
     assert_screen('textmode_logged_in');
 
-    # if systemd-analyze blame fails, then the pipe swallows the error
-    # setting pipefail remedies that
-    assert_script_run('set -o pipefail');
-    assert_script_run('systemd-analyze blame | head -n 15');
+    # run `systemd-analyze blame` with `--no-pager` so that the results are not
+    # piped into `less` or `more`
+    assert_script_run('systemd-analyze blame --no-pager');
 
     # perform a sanity check that we got the correct distribution + version
     my $distri = get_var('DISTRI');
