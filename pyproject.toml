@@ -9,7 +9,6 @@ license = "GPL-2.0-or-later"
 python = "^3.8"
 lxml = "^4.6"
 openqa-client = "^4.1"
-osc = ">=0.167"
 prettytable = ">=2.4.0"
 
 [tool.poetry.dev-dependencies]
