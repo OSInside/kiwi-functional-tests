@@ -10,7 +10,6 @@
   ],
   "properties": [],
   "tags": [
-    "kiwi_bootloader",
-    "kiwi_bootloader_uefi"
+    "kiwi_bootloader"
   ]
 }

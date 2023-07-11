@@ -93,11 +93,23 @@ OPENSUSE_LEAP_VERSION = "Leap"
 
 FEDORA_DISTRI = "fedora"
 FEDORA_RAWHIDE_VERSION = "Rawhide"
-FEDORA_RELEASED_VERSION = "34"
+FEDORA_RELEASED_VERSION = "37"
 
 SLE_DISTRI = "sle"
 SLE_15_VERSION = "15"
 
+CENTOS_DISTRI = "centos"
+CENTOS_8_VERSION = "8"
+CENTOS_9_VERSION = "9"
+
+UBUNTU_DISTRI = "ubuntu"
+UBUNTU_VERSION = "22.04"
+
+DEBIAN_DISTRI = "debian"
+DEBIAN_VERSION = "10"
+
+ARCHLINUX_DISTRI = "archlinux"
+ARCHLINUX_VERSION = "rolling"
 
 #: List of all tuples ($version, $distri) that are included in the kiwi test
 #: suite
@@ -113,7 +125,18 @@ KIWI_DISTRO_MATRIX: List[Tuple[str, str]] = (
             (FEDORA_RELEASED_VERSION, FEDORA_RAWHIDE_VERSION), [FEDORA_DISTRI]
         )
     )
-    + [(SLE_15_VERSION, SLE_DISTRI)]
+    + list(
+        product(
+            (CENTOS_8_VERSION, CENTOS_9_VERSION),
+            [CENTOS_DISTRI],
+        )
+    )
+    + [
+        (SLE_15_VERSION, SLE_DISTRI),
+        (UBUNTU_VERSION, UBUNTU_DISTRI),
+        (DEBIAN_VERSION, DEBIAN_DISTRI),
+        (ARCHLINUX_VERSION, ARCHLINUX_DISTRI),
+    ]
 )
 
 #: all product flavors used (these are closely related to the respective test
@@ -262,6 +285,7 @@ TUMBLEWEED_OBS_PACKAGES = (
             "test-image-suse-on-dnf",
             "test-image-raid",
             "test-image-bundle-format",
+            "test-image-partitions-and-volumes",
         ]
     ]
     + [
@@ -455,12 +479,106 @@ SLE_15_TESTS = DistroTest(
     distri=SLE_DISTRI, version=SLE_15_VERSION, packages=SLE_15_PACKAGES
 )
 
+_CENTOS_PROJECT = "Virtualization:Appliances:Images:Testing_x86:centos"
+_CENTOS_8_REPO = "images_CentOS8"
+_CENTOS_9_REPO = "images_CentOS9"
+
+(CENTOS_8_TESTS, CENTOS_9_TESTS) = (
+    DistroTest(
+        distri=CENTOS_DISTRI,
+        version=ver,
+        packages=[
+            ObsImagePackage.new_install_iso_package(
+                project=_CENTOS_PROJECT,
+                repository=repo,
+                package=f"test-image-live-disk-v{ver}:Disk",
+            ),
+            ObsImagePackage.new_disk_image_package(
+                project=_CENTOS_PROJECT,
+                repository=repo,
+                package=f"test-image-live-disk-v{ver}:Disk",
+            ),
+            ObsImagePackage.new_live_iso_package(
+                project=_CENTOS_PROJECT,
+                repository=repo,
+                package=f"test-image-live-disk-v{ver}:Live",
+            ),
+            ObsImagePackage.new_disk_image_package(
+                project=_CENTOS_PROJECT,
+                repository=repo,
+                package=f"test-image-live-disk-v{ver}:Virtual",
+            ),
+        ],
+    )
+    for (ver, repo) in (
+        (CENTOS_8_VERSION, _CENTOS_8_REPO),
+        (CENTOS_9_VERSION, _CENTOS_9_REPO),
+    )
+)
+
+_UBUNTU_PROJECT = "Virtualization:Appliances:Images:Testing_x86:ubuntu"
+_DEBIAN_PROJECT = "Virtualization:Appliances:Images:Testing_x86:debian"
+(UBUNTU_TESTS, DEBIAN_TESTS) = (
+    DistroTest(
+        distri=distri,
+        version=version,
+        packages=[
+            ObsImagePackage.new_disk_image_package(
+                project=project, package="test-image-live-disk:Disk"
+            ),
+            ObsImagePackage.new_install_iso_package(
+                project=project, package="test-image-live-disk:Disk"
+            ),
+            ObsImagePackage.new_disk_image_package(
+                project=project, package="test-image-live-disk:Virtual"
+            ),
+            ObsImagePackage.new_live_iso_package(
+                project=project, package="test-image-live-disk:Live"
+            ),
+        ],
+    )
+    for (distri, version, project) in (
+        (UBUNTU_DISTRI, UBUNTU_VERSION, _UBUNTU_PROJECT),
+        (DEBIAN_DISTRI, DEBIAN_VERSION, _DEBIAN_PROJECT),
+    )
+)
+
+_ARCHLINUX_PROJECT = "Virtualization:Appliances:Images:Testing_x86:archlinux"
+ARCHLINUX_TESTS = DistroTest(
+    distri=ARCHLINUX_DISTRI,
+    version=ARCHLINUX_VERSION,
+    packages=[
+        ObsImagePackage.new_install_iso_package(
+            package="test-image-live-disk-kis:Disk", project=_ARCHLINUX_PROJECT
+        ),
+        ObsImagePackage.new_disk_image_package(
+            package="test-image-live-disk-kis:Disk", project=_ARCHLINUX_PROJECT
+        ),
+        # Currently not possible to boot this one via openQA
+        # ObsImagePackage.new_disk_image_package(
+        #     package="test-image-live-disk-kis:KIS", project=_ARCHLINUX_PROJECT
+        # ),
+        ObsImagePackage.new_live_iso_package(
+            package="test-image-live-disk-kis:Live", project=_ARCHLINUX_PROJECT
+        ),
+        ObsImagePackage.new_disk_image_package(
+            package="test-image-live-disk-kis:Virtual",
+            project=_ARCHLINUX_PROJECT,
+        ),
+    ],
+)
+
 ALL_TESTS: List[DistroTest] = [
     OPENSUSE_TUMBLEWEED_TESTS,
     OPENSUSE_LEAP_TESTS,
     FEDORA_RAWHIDE_TESTS,
     FEDORA_RELEASED_TESTS,
     SLE_15_TESTS,
+    CENTOS_8_TESTS,
+    CENTOS_9_TESTS,
+    UBUNTU_TESTS,
+    DEBIAN_TESTS,
+    ARCHLINUX_TESTS,
 ]
 
 

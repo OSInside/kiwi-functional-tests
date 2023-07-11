@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 
-from itertools import chain
-from typing import List
-
 
 if __name__ == "__main__":
     from argparse import ArgumentParser
     from datetime import datetime
-    from pickle import dump
+    from itertools import chain
+    from json import dumps
+    from typing import List
 
     from osc import conf
 
@@ -15,6 +14,13 @@ if __name__ == "__main__":
     from launcher.client import NoWaitClient
     from launcher.constants import (
         ALL_TESTS,
+        CENTOS_8_TESTS,
+        CENTOS_9_TESTS,
+        CENTOS_DISTRI,
+        ARCHLINUX_DISTRI,
+        ARCHLINUX_TESTS,
+        DEBIAN_DISTRI,
+        DEBIAN_TESTS,
         FEDORA_DISTRI,
         FEDORA_RELEASED_TESTS,
         FEDORA_RAWHIDE_TESTS,
@@ -23,6 +29,8 @@ if __name__ == "__main__":
         OPENSUSE_DISTRI,
         SLE_DISTRI,
         SLE_15_TESTS,
+        UBUNTU_DISTRI,
+        UBUNTU_TESTS,
         KIWI_DISTRO_MATRIX,
     )
     from launcher.image_tests import DistroTest
@@ -57,7 +65,15 @@ Defaults to today's date formated as year+month+day""",
         help="""Only schedule tests for the supplied distribution.
 Defaults to all distributions.""",
         default=None,
-        choices=[OPENSUSE_DISTRI, FEDORA_DISTRI, SLE_DISTRI],
+        choices=[
+            OPENSUSE_DISTRI,
+            FEDORA_DISTRI,
+            SLE_DISTRI,
+            CENTOS_DISTRI,
+            UBUNTU_DISTRI,
+            DEBIAN_DISTRI,
+            ARCHLINUX_DISTRI,
+        ],
         nargs="+",
         type=str,
     )
@@ -118,6 +134,14 @@ Only enable this when the openQA host can reach download.opensuse.org via https
             all_tests += [FEDORA_RAWHIDE_TESTS, FEDORA_RELEASED_TESTS]
         if SLE_DISTRI in args.distri:
             all_tests += [SLE_15_TESTS]
+        if CENTOS_DISTRI in args.distri:
+            all_tests += [CENTOS_8_TESTS, CENTOS_9_TESTS]
+        if UBUNTU_DISTRI in args.distri:
+            all_tests += [UBUNTU_TESTS]
+        if DEBIAN_DISTRI in args.distri:
+            all_tests += [DEBIAN_TESTS]
+        if ARCHLINUX_DISTRI in args.distri:
+            all_tests += [ARCHLINUX_TESTS]
     elif args.version_distri is not None:
         for ver_distri in args.version_distri:
             matching_test = [
@@ -150,9 +174,9 @@ Only enable this when the openQA host can reach download.opensuse.org via https
         filename = (
             f"kiwi_build_{build}_"
             + datetime.now().strftime("%Y_%B_%d-%H_%M_%S")
-            + ".pickle"
+            + ".json"
         )
-        with open(filename, "wb") as build_state_file:
-            dump(running_build, build_state_file)
+        with open(filename, "w") as build_state_file:
+            build_state_file.write(dumps(running_build.__dict__, indent="\t"))
 
         print(f"Wrote build state into {filename}")

@@ -32,10 +32,9 @@ sub run {
     send_key('ctrl-l');
     assert_screen('textmode_logged_in');
 
-    # if systemd-analyze blame fails, then the pipe swallows the error
-    # setting pipefail remedies that
-    assert_script_run('set -o pipefail');
-    assert_script_run('systemd-analyze blame | head -n 15');
+    # run `systemd-analyze blame` with `--no-pager` so that the results are not
+    # piped into `less` or `more`
+    assert_script_run('systemd-analyze blame --no-pager');
 
     # perform a sanity check that we got the correct distribution + version
     my $distri = get_var('DISTRI');
@@ -71,6 +70,26 @@ sub run {
         # VERSION_ID="15.2"
         assert_script_run('. /etc/os-release && [[ "${VERSION_ID}" =~ "' . $version . '" ]]');
         assert_script_run('. /etc/os-release && [[ "${ID}" = "sles" ]]');
+    } elsif (($distri eq 'centos') || ($distri eq 'debian') || ($distri eq 'ubuntu')) {
+        # on CentOS:
+        # ID="centos"
+        # VERSION_ID="7"
+        #
+        # on Debian:
+        # ID=debian
+        # VERSION_ID="10"
+        #
+        # on Ubuntu:
+        # ID=ubuntu
+        # VERSION_ID="21.04"
+        assert_script_run('. /etc/os-release && [[ "${VERSION_ID}" = "' . $version . '" ]]');
+        assert_script_run('. /etc/os-release && [[ "${ID}" = "' . $distri . '" ]]');
+    } elsif ($distri eq 'archlinux') {
+        # on Arch:
+        # ID=arch
+        # BUILD_ID=rolling
+        assert_script_run('. /etc/os-release && [[ "${BUILD_ID}" = "' . $version . '" ]]');
+        assert_script_run('. /etc/os-release && [[ "${ID}" = "arch" ]]');
     } else {
         die("No sanity check for $distri-$version is defined!");
     }

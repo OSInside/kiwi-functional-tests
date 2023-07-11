@@ -1,11 +1,9 @@
-from typing import Any, Literal, Union
+from typing import Any, Literal
 
 from openqa_client.client import OpenQA_Client
 
 
-Method = Union[
-    Literal["GET"], Literal["POST"], Literal["PUT"], Literal["DELETE"]
-]
+Method = Literal["GET", "POST", "PUT", "DELETE"]
 
 
 class NoWaitClient(OpenQA_Client):
