@@ -4,6 +4,9 @@ version = "0.1.0"
 description = "KIWI openQA functional tests based on the integration tests in OBS"
 authors = ["Marcus Schäfer <ms@suse.de>", "Dan Čermák <dcermak@suse.com>"]
 license = "GPL-2.0-or-later"
+packages = [
+    { include = "launcher" },
+]
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -15,6 +18,11 @@ prettytable = ">=2.4.0"
 black = ">=21.4b0"
 mypy = ">=0.812"
 lxml-stubs = ">=0.1.1"
+
+[tool.poetry.scripts]
+settings = "launcher.settings:main"
+schedule_test_run = "launcher.schedule_test_run:main"
+monitor = "launcher.monitor:main"
 
 [tool.black]
 line-length = 79

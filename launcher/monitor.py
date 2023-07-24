@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 from typing import Any, Dict
 from prettytable import PrettyTable
 
@@ -17,7 +15,7 @@ def format_dict(d: Dict[str, Any]) -> str:
     return table.get_string()
 
 
-if __name__ == "__main__":
+def main() -> None:
     from argparse import ArgumentParser
     from json import loads
 

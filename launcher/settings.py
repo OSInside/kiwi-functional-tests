@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 from openqa_client.client import OpenQA_Client
 
 from launcher.constants import (
@@ -104,7 +103,7 @@ def ensure_kiwi_settings(client: OpenQA_Client) -> None:
     )
 
 
-if __name__ == "__main__":
+def main() -> None:
     from argparse import ArgumentParser
 
     from launcher.argparser import SERVER_PARSER
