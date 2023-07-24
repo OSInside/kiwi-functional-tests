@@ -440,7 +440,7 @@ FEDORA_RAWHIDE_PACKAGES = (
         for package in [
             "test-image-live-disk:Disk",
             "test-image-live-disk:Virtual",
-            "test-image-microdnf",
+            "test-image-dnf5",
         ]
     ]
     + [
