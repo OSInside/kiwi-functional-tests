@@ -482,6 +482,7 @@ SLE_15_TESTS = DistroTest(
 _CENTOS_PROJECT = "Virtualization:Appliances:Images:Testing_x86:centos"
 _CENTOS_8_REPO = "images_CentOS8"
 _CENTOS_9_REPO = "images_CentOS9"
+_HOST_QEMUCPU_PARAMS = {"QEMUCPU": "host"}
 
 (CENTOS_8_TESTS, CENTOS_9_TESTS) = (
     DistroTest(
@@ -492,21 +493,33 @@ _CENTOS_9_REPO = "images_CentOS9"
                 project=_CENTOS_PROJECT,
                 repository=repo,
                 package=f"test-image-live-disk-v{ver}:Disk",
+                extra_api_post_params=(
+                    _HOST_QEMUCPU_PARAMS if ver == CENTOS_9_VERSION else None
+                ),
             ),
             ObsImagePackage.new_disk_image_package(
                 project=_CENTOS_PROJECT,
                 repository=repo,
                 package=f"test-image-live-disk-v{ver}:Disk",
+                extra_api_post_params=(
+                    _HOST_QEMUCPU_PARAMS if ver == CENTOS_9_VERSION else None
+                ),
             ),
             ObsImagePackage.new_live_iso_package(
                 project=_CENTOS_PROJECT,
                 repository=repo,
                 package=f"test-image-live-disk-v{ver}:Live",
+                extra_api_post_params=(
+                    _HOST_QEMUCPU_PARAMS if ver == CENTOS_9_VERSION else None
+                ),
             ),
             ObsImagePackage.new_disk_image_package(
                 project=_CENTOS_PROJECT,
                 repository=repo,
                 package=f"test-image-live-disk-v{ver}:Virtual",
+                extra_api_post_params=(
+                    _HOST_QEMUCPU_PARAMS if ver == CENTOS_9_VERSION else None
+                ),
             ),
         ],
     )
