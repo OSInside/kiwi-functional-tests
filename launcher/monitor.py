@@ -20,11 +20,10 @@ def main() -> None:
     from json import loads
 
     from launcher.client import NoWaitClient
-    from launcher.argparser import SERVER_PARSER
     from launcher.constants import COLORS
     from launcher.running_build import RunningBuild
 
-    parser = ArgumentParser(parents=[SERVER_PARSER])
+    parser = ArgumentParser()
 
     parser.add_argument(
         "state_file",
