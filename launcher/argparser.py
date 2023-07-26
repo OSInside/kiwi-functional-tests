@@ -12,8 +12,8 @@ Defaults to openqa.opensuse.org""",
 )
 SERVER_PARSER.add_argument(
     "--server-scheme",
-    help="URL scheme used by the openqa server. Defaults to 'https'.",
+    help="URL scheme used by the openqa server. Defaults to '' (i.e. autodetect).",
     nargs=1,
-    choices=("https", "http"),
-    default=["https"],
+    choices=("https", "http", ""),
+    default=[""],
 )
