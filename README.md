@@ -1,6 +1,6 @@
 # kiwi-functional-tests
 
-KIWI openQA functional tests using the images from the staging project on OBS.
+KIWI openQA functional tests using the images from the staging project on OBS
 
 
 ## Prerequisites
