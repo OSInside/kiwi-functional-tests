@@ -1,0 +1,67 @@
+---
+name: schedule-test-run-command
+on:
+  repository_dispatch:
+    types: [schedule-test-run-command]
+jobs:
+  help:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/cache@v3
+        with:
+          path: ~/.cache/pypoetry/virtualenvs
+          key: poetry-${{ hashFiles('poetry.lock') }}
+
+      - name: install python dependencies
+        run: poetry install
+
+      - name: create the openQA client config file
+        run: |
+          mkdir -p ~/.config/openqa
+          echo "[openqa.opensuse.org]" > ~/.config/openqa/client.conf
+          echo "key = ${{ secrets.O3_KEY }}" >> ~/.config/openqa/client.conf
+          echo "secret = ${{ secrets.O3_SECRET }}" >> ~/.config/openqa/client.conf
+
+      - name: schedule the actual test run
+        run: |
+          VERSION_DISTRI="${{ github.event.client_payload.slash_command.args.named.version_distri }}"
+          DISTRI="${{ github.event.client_payload.slash_command.args.named.distri }}"
+          CMD="poetry run schedule_test_run"
+          eval "$CMD -vd $(echo $VERSION_DISTR | sed 's/,/ /g') -d $(echo $DISTRI | sed 's/,/ /g') --dry-run"
+          json_state_file=$(ls -tr *json|tail -1)
+          echo "json_state_file=$json_state_file" >> $GITHUB_ENV
+          echo "json_b64_state=$(cat $json_state_file | base64 -w 0)"
+
+      - name: create a comment with the json state file
+        uses: peter-evans/create-or-update-comment@v3
+        id: create_comment
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            Created the test run ${{ env.json_state_file }}.
+            <details><summary>Internal state</summary>
+            ${{ env.json_b64_state }}
+            </details>
+
+      - name: Add reaction to the original comment on success
+        if: ${{ success() }}
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          token: ${{ secrets.PAT }}
+          comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
+          reaction-type: "+1"
+
+      - name: generate the url to this workflow run
+        if: ${{ failure() || cancelled() }}
+        run: echo "run_url=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" >> $GITHUB_ENV
+
+      - name: Add reaction and a link to the error to the original comment on failure
+        if: ${{ failure() || cancelled() }}
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          token: ${{ secrets.PAT }}
+          comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
+          reaction-type: "-1"
+          body: Failed to schedule the test, see the [workflow run](${{ env.run_url }}) for further details.

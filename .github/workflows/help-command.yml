@@ -1,0 +1,22 @@
+---
+name: help-command
+on:
+  repository_dispatch:
+    types: [help-command]
+jobs:
+  help:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update comment
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          token: ${{ secrets.PAT }}
+          repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
+          comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
+          body: |
+            > Command | Description
+            > --- | ---
+            > /help | Print this message
+            > /schedule-test-run [distri={opensuse,fedora,sle,centos,ubuntu,debian,archlinux}] [version_distri={Tumbleweed+opensuse,Leap+opensuse,37+fedora,Rawhide+fedora,8+centos,9+centos,15+sle,22.04+ubuntu,10+debian,rolling+archlinux}] | Schedules a test run on openqa.opensuse.org
+            > /cancel-tests | Cancel the current test run
+            > /print-result | Pretty prints the result from the test run
