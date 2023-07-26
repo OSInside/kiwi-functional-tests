@@ -9,10 +9,9 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.11"
 lxml = "^4.6"
 openqa-client = "^4.1"
-prettytable = ">=2.4.0"
 pydantic = "^2.0"
 
 [tool.poetry.dev-dependencies]
@@ -23,7 +22,7 @@ lxml-stubs = ">=0.1.1"
 [tool.poetry.scripts]
 settings = "launcher.settings:main"
 schedule_test_run = "launcher.schedule_test_run:main"
-monitor = "launcher.monitor:main"
+monitor = "launcher.running_build:main"
 openqa_job = "launcher.openqa:main"
 
 [tool.black]
