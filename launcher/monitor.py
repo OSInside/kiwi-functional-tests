@@ -38,6 +38,12 @@ def main() -> None:
         action="store_true",
     )
     parser.add_argument(
+        "-f",
+        "--failed-only",
+        help="only print failed jobs",
+        action="store_true",
+    )
+    parser.add_argument(
         "-c", "--cancel", help="cancel all running jobs", action="store_true"
     )
     parser.add_argument(
@@ -71,9 +77,19 @@ def main() -> None:
         table = PrettyTable(["test URL", "state", "result", "settings"])
         table.align = "l"
 
-        states = running_build.get_job_states()
-        for job_id in states:
-            state = states[job_id]
+        jobs = running_build.fetch_job_states()
+        for job_id in jobs:
+            job = jobs[job_id]
+
+            if args.failed_only and job.result in (
+                "scheduled",
+                "softfailed",
+                "passed",
+                "none",
+                "parallel_restarted",
+                "user_restarted",
+            ):
+                continue
 
             color = {
                 "failed": COLORS.FAIL,
