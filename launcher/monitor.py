@@ -48,6 +48,11 @@ def main() -> None:
         action="count",
         default=0,
     )
+    parser.add_argument(
+        "--no-resolve-clones",
+        help="Don't follow job clones",
+        action="store_true",
+    )
 
     args = parser.parse_args()
 
@@ -56,6 +61,9 @@ def main() -> None:
 
     with open(args.state_file[0], "r") as state_file:
         running_build = RunningBuild(**loads(state_file.read()))
+        if not args.no_resolve_clones:
+            running_build = running_build.fetch_cloned_build()
+
     client = NoWaitClient(
         server=running_build.server, scheme=running_build.scheme
     )
@@ -75,14 +83,14 @@ def main() -> None:
                 "passed": COLORS.OKGREEN,
                 "softfailed": COLORS.OKCYAN,
                 "user_cancelled": COLORS.WARNING,
-            }.get(state["state"]) or COLORS.OKBLUE
+            }.get(job.state, COLORS.OKBLUE)
 
             if args.verbose == 0:
-                last_col = f"{state['settings']['DISTRI']} {state['settings']['VERSION']}: {(state['settings'].get('HDD_1') or state['settings']['ISO_1'])}"
+                last_col = f"{job.settings['DISTRI']} {job.settings['VERSION']}: {(job.settings.get('HDD_1') or job.settings['ISO_1'])}"
             elif args.verbose == 1:
                 last_col = format_dict(
                     {
-                        k: state["settings"].get(k, None)
+                        k: job.settings.get(k, None)
                         for k in [
                             "DISTRI",
                             "FLAVOR",
@@ -91,17 +99,17 @@ def main() -> None:
                             "HDD_1",
                             "ISO_1",
                         ]
-                        if k in state["settings"]
+                        if k in job.settings
                     }
                 )
             else:
-                last_col = format_dict(state["settings"])
+                last_col = format_dict(job.settings)
 
             table.add_row(
                 [
                     f"{client.baseurl}/tests/{job_id}",
-                    f"{color}{state['state']}{COLORS.ENDC}",
-                    state["result"],
+                    f"{color}{job.state}{COLORS.ENDC}",
+                    job.result,
                     last_col,
                 ]
             )

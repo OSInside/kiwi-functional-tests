@@ -1,8 +1,11 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Dict, List
+
+from openqa_client.client import OpenQA_Client
 
 from launcher.client import NoWaitClient
-from launcher.types import JobState
+from launcher.openqa import Job, fetch_job
 
 
 @dataclass
@@ -18,36 +21,71 @@ class CancelFailure:
 class RunningBuild:
     build: str
     server: str
-    scheme: str
-    job_ids: List[int]
+    job_ids: list[int]
+    scheme: str = ""
 
-    def _get_client(self) -> NoWaitClient:
+    @property
+    def _client(self) -> NoWaitClient:
         return NoWaitClient(server=self.server, scheme=self.scheme)
 
-    def get_job_states(self) -> Dict[int, JobState]:
-        client = self._get_client()
-        job_results: Dict[int, JobState] = {}
+    @staticmethod
+    def _fetch_final_clone(client: OpenQA_Client, job: Job) -> Job:
+        if not job.clone_id:
+            return job
+        return RunningBuild._fetch_final_clone(
+            client, fetch_job(client, job.clone_id)
+        )
+
+    def fetch_cloned_build(self) -> RunningBuild:
+        new_ids: list[int] = []
+        deny_list = []
+        client = self._client
+
         for job_id in self.job_ids:
-            job = client.openqa_request("GET", f"jobs/{job_id}")["job"]
-            result, state = job.pop("state"), job.pop("result")
-            job_results[job_id] = {
-                **JobState(state=state, result=result),
-                **job,
-            }
+            if job_id in deny_list:
+                continue
+
+            job = fetch_job(client, job_id)
+            if job.clone_id:
+                deny_list.extend(job.children.chained)
+                new_ids.append(
+                    (
+                        cloned_job := RunningBuild._fetch_final_clone(
+                            client, job
+                        )
+                    ).id
+                )
+                new_ids.extend(cloned_job.children.chained)
+
+            else:
+                new_ids.append(job.id)
+
+        return RunningBuild(
+            server=self.server,
+            build=self.build,
+            scheme=self.scheme,
+            job_ids=new_ids,
+        )
+
+    def fetch_job_states(self) -> dict[int, Job]:
+        client = self._client
+        job_results: dict[int, Job] = {}
+        for job_id in self.job_ids:
+            job_results[job_id] = fetch_job(client, job_id)
         return job_results
 
-    def get_unfinished_jobs(self) -> List[int]:
-        job_states = self.get_job_states()
-        unfinished: List[int] = []
+    def get_unfinished_jobs(self) -> list[int]:
+        job_states = self.fetch_job_states()
+        unfinished: list[int] = []
 
         for job_id in job_states:
-            if job_states[job_id]["state"] not in ("cancelled", "done"):
+            if job_states[job_id].state not in ("cancelled", "done"):
                 unfinished.append(job_id)
 
         return unfinished
 
     def cancel_all_jobs(self) -> None:
-        client = self._get_client()
+        client = self._client
         failures = []
         for job_id in self.job_ids:
             try:
