@@ -67,20 +67,17 @@ class RunningBuild:
             job_ids=new_ids,
         )
 
-    def fetch_job_states(self) -> dict[int, Job]:
+    def fetch_job_states(self) -> list[Job]:
         client = self._client
-        job_results: dict[int, Job] = {}
-        for job_id in self.job_ids:
-            job_results[job_id] = fetch_job(client, job_id)
-        return job_results
+        return [fetch_job(client, job_id) for job_id in self.job_ids]
 
     def get_unfinished_jobs(self) -> list[int]:
         job_states = self.fetch_job_states()
         unfinished: list[int] = []
 
-        for job_id in job_states:
-            if job_states[job_id].state not in ("cancelled", "done"):
-                unfinished.append(job_id)
+        for job in job_states:
+            if job.state not in ("cancelled", "done"):
+                unfinished.append(job.id)
 
         return unfinished
 
@@ -95,3 +92,70 @@ class RunningBuild:
 
         for failure in failures:
             print(failure)
+
+    def as_markdown(self, failed_only: bool = False) -> str:
+        baseurl = self._client.baseurl
+        jobs = self.fetch_job_states()
+        res = """Test | state | result | settings
+-----|-------|--------|---------
+"""
+        for job in jobs:
+            if failed_only and not job.result.is_failed:
+                continue
+
+            res += (
+                f"[{job.id}]({baseurl}/tests/{job.id}) | {job.state.pretty} | {job.result.pretty} | "
+                + f"""{job.settings['DISTRI']} {job.settings['VERSION']}: {(job.settings.get('HDD_1') or job.settings['ISO_1'])}
+"""
+            )
+        return res
+
+
+def main() -> None:
+    from argparse import ArgumentParser
+    from json import loads
+
+    parser = ArgumentParser()
+
+    parser.add_argument(
+        "state_file",
+        help="""Path to the state file of the build""",
+        nargs=1,
+        type=str,
+    )
+    parser.add_argument(
+        "-p",
+        "--print-state",
+        help="print the states of the associated jobs",
+        action="store_true",
+    )
+    parser.add_argument(
+        "-f",
+        "--failed-only",
+        help="only print failed jobs",
+        action="store_true",
+    )
+    parser.add_argument(
+        "-c", "--cancel", help="cancel all running jobs", action="store_true"
+    )
+    parser.add_argument(
+        "--no-resolve-clones",
+        help="Don't follow job clones",
+        action="store_true",
+    )
+
+    args = parser.parse_args()
+
+    if not args.print_state and not args.cancel:
+        raise ValueError("Missing action for the monitoring script")
+
+    with open(args.state_file[0], "r") as state_file:
+        running_build = RunningBuild(**loads(state_file.read()))
+        if not args.no_resolve_clones:
+            running_build = running_build.fetch_cloned_build()
+
+    if args.print_state:
+        print(running_build.as_markdown(args.failed_only))
+
+    if args.cancel:
+        running_build.cancel_all_jobs()

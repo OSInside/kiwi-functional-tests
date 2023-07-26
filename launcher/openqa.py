@@ -1,3 +1,4 @@
+from enum import StrEnum, auto, unique
 from typing import Literal
 from openqa_client.client import OpenQA_Client
 from pydantic import BaseModel, ConfigDict
@@ -19,6 +20,71 @@ class JobDependency(BaseModel):
     #: jobs running in parallel
     parallel: list[int]
     directly_chained: list[int]
+
+
+@unique
+class JobState(StrEnum):
+    DONE = auto()
+    CANCELLED = auto()
+    SCHEDULED = auto()
+    RUNNING = auto()
+
+    @property
+    def pretty(self) -> str:
+        EMOJI = {
+            JobState.SCHEDULED: "📅",
+            JobState.RUNNING: "🛻",
+            JobState.CANCELLED: "🚫",
+            JobState.DONE: "🏁",
+        }
+        return f"{EMOJI[self]} {self.value}"
+
+
+@unique
+class JobResult(StrEnum):
+    SCHEDULED = auto()
+    SOFTFAILED = auto()
+    USER_CANCELLED = auto()
+    FAILED = auto()
+    SKIPPED = auto()
+    INCOMPLETE = auto()
+    PASSED = auto()
+    NONE = auto()
+    PARALLEL_FAILED = auto()
+    PARALLEL_RESTARTED = auto()
+    USER_RESTARTED = auto()
+    OBSOLETED = auto()
+    TIMEOUT_EXCEEDED = auto()
+
+    @property
+    def is_failed(self) -> bool:
+        return self not in (
+            JobResult.SCHEDULED,
+            JobResult.SOFTFAILED,
+            JobResult.PASSED,
+            JobResult.NONE,
+            JobResult.PARALLEL_RESTARTED,
+            JobResult.USER_RESTARTED,
+        )
+
+    @property
+    def pretty(self) -> str:
+        EMOJI = {
+            JobResult.SCHEDULED: "📅",
+            JobResult.SOFTFAILED: "🟡",
+            JobResult.USER_CANCELLED: "✖",
+            JobResult.FAILED: "❌",
+            JobResult.SKIPPED: "⏭",
+            JobResult.INCOMPLETE: "🚫",
+            JobResult.PASSED: "✅",
+            JobResult.NONE: "❓",
+            JobResult.PARALLEL_FAILED: "❌",
+            JobResult.PARALLEL_RESTARTED: "🔁",
+            JobResult.USER_RESTARTED: "🔁",
+            JobResult.OBSOLETED: "",
+            JobResult.TIMEOUT_EXCEEDED: "⏰",
+        }
+        return f"{EMOJI[self]} {self.value}"
 
 
 class Job(BaseModel):
@@ -43,23 +109,9 @@ class Job(BaseModel):
     group_id: int | None
     parents: JobDependency
     parents_ok: Literal[1, 0, ""]
-    result: Literal[
-        "scheduled",
-        "softfailed",
-        "user_cancelled",
-        "failed",
-        "skipped",
-        "incomplete",
-        "passed",
-        "none",
-        "parallel_failed",
-        "parallel_restarted",
-        "user_restarted",
-        "obsoleted",
-        "timeout_exceeded",
-    ]
+    result: JobResult
     settings: dict[str, str]
-    state: Literal["done", "cancelled", "scheduled", "running"]
+    state: JobState
     test: str
     #: timestamp when the test finished or failed
     t_finished: str | None
