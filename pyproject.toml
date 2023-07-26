@@ -12,6 +12,7 @@ packages = [
 python = "^3.11"
 openqa-client = "^4.1"
 pydantic = "^2.0"
+osc = "^1.2"
 
 [tool.poetry.dev-dependencies]
 black = ">=21.4b0"
