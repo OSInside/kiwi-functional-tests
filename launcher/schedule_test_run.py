@@ -61,7 +61,7 @@ Defaults to today's date formated as year+month+day""",
         "--distri",
         help="""Only schedule tests for the supplied distribution.
 Defaults to all distributions.""",
-        default=None,
+        default=[],
         choices=[
             OPENSUSE_DISTRI,
             FEDORA_DISTRI,
@@ -71,7 +71,7 @@ Defaults to all distributions.""",
             DEBIAN_DISTRI,
             ARCHLINUX_DISTRI,
         ],
-        nargs="+",
+        nargs="*",
         type=str,
     )
     parser.add_argument(
@@ -82,9 +82,9 @@ Defaults to all distributions.""",
         choices=[
             f"{version}+{distri}" for version, distri in KIWI_DISTRO_MATRIX
         ],
-        nargs="+",
+        nargs="*",
         type=str,
-        default=None,
+        default=[],
     )
     parser.add_argument(
         "--openqa-host-os",
@@ -110,21 +110,22 @@ Only enable this when the openQA host can reach download.opensuse.org via https
 
     args = parser.parse_args()
 
-    if args.distri is not None and args.version_distri is not None:
+    if args.distri and args.version_distri:
         raise UserWarning(
             "cannot specify both distri and version-distri at the same time"
         )
 
     build = args.build[0] or datetime.now().strftime("%Y%m%d")
-    server = args.server[0]
-    scheme = args.server_scheme[0]
 
-    client = NoWaitClient(server=server, scheme=scheme)
+    client = NoWaitClient(
+        server=(server := args.server[0]),
+        scheme=(scheme := args.server_scheme[0]),
+    )
 
     jobs = []
 
     all_tests: List[DistroTest] = []
-    if args.distri is not None:
+    if args.distri:
         if OPENSUSE_DISTRI in args.distri:
             all_tests += [OPENSUSE_TUMBLEWEED_TESTS, OPENSUSE_LEAP_TESTS]
         if FEDORA_DISTRI in args.distri:
@@ -139,7 +140,7 @@ Only enable this when the openQA host can reach download.opensuse.org via https
             all_tests += [DEBIAN_TESTS]
         if ARCHLINUX_DISTRI in args.distri:
             all_tests += [ARCHLINUX_TESTS]
-    elif args.version_distri is not None:
+    elif args.version_distri:
         for ver_distri in args.version_distri:
             matching_test = [
                 test
