@@ -10,14 +10,12 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.11"
-lxml = "^4.6"
 openqa-client = "^4.1"
 pydantic = "^2.0"
 
 [tool.poetry.dev-dependencies]
 black = ">=21.4b0"
 mypy = ">=0.812"
-lxml-stubs = ">=0.1.1"
 
 [tool.poetry.scripts]
 settings = "launcher.settings:main"
